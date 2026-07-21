@@ -1,0 +1,29 @@
+# Java / Maven
+**/target/
+*.class
+*.log
+
+# Frontend
+**/node_modules/
+**/dist/
+.npm/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Local configuration and secrets
+application-local.yml
+bootstrap-local.yml
+**/*-local.yml
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
