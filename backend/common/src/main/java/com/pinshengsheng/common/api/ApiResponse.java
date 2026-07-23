@@ -1,4 +1,4 @@
-package com.pinshengsheng.product.common;
+package com.pinshengsheng.common.api;
 
 public class ApiResponse<T> {
 

@@ -2,18 +2,18 @@
 
 ## 基础设施
 
-- [ ] MySQL 可连接
-- [ ] Redis 可连接
-- [ ] Nacos 控制台可访问
-- [ ] RabbitMQ 控制台可访问
-- [ ] MinIO 可访问（如果启用）
+- [x] MySQL 可连接
+- [x] Redis 可连接
+- [x] Nacos 控制台可访问
+- [x] RabbitMQ 控制台可访问
+- [x] MinIO 可访问
 
 ## 微服务
 
-- [ ] Gateway 启动
+- [x] Gateway 启动
 - [ ] Auth 启动
 - [ ] System 启动
-- [ ] Product 启动
+- [x] Product 启动
 - [ ] Cart 启动
 - [ ] Order 启动
 - [ ] Payment 启动
@@ -21,7 +21,7 @@
 ## 业务链路
 
 - [ ] 用户登录成功
-- [ ] 商品详情返回正确数据
+- [x] 商品详情返回正确数据
 - [ ] 商品缓存命中和失效行为正确
 - [ ] 商品加入购物车
 - [ ] 创建订单

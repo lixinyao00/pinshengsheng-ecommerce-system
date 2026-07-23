@@ -1,6 +1,6 @@
 package com.pinshengsheng.product;
 
-import com.pinshengsheng.product.common.ApiResponse;
+import com.pinshengsheng.common.api.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
