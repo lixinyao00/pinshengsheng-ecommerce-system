@@ -29,7 +29,7 @@ docker compose down -v
 - Nacos：<http://localhost:8848/nacos>
 - RabbitMQ：<http://localhost:15672>
 - MinIO：<http://localhost:9001>
-- MySQL：`localhost:3306`
+- MySQL：`localhost:13306`
 - Redis：`localhost:6379`
 
-当前开发机尚未安装 Docker，因此这份配置已提交但还没有在本机启动验收。
+本机已完成启动验收。MySQL 使用 `13306` 是为了避免占用开发机已有的 `3306` 端口。

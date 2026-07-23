@@ -9,12 +9,12 @@
 
 ## 本机验证结果
 
-- MySQL：3306 当前有监听进程。
-- Redis：6379 未监听。
-- Nacos：8848、9848 未监听。
-- RabbitMQ：5672、15672 未监听。
-- Docker、Podman：未安装或不在 PATH。
+- MySQL：Docker 容器健康检查通过，宿主机端口为 13306。
+- Redis：Docker 容器健康检查通过，端口为 6379。
+- Nacos：控制台可访问，端口为 8848。
+- RabbitMQ：管理页面可访问，端口为 15672。
+- MinIO：健康检查接口可访问，端口为 9000。
 
 ## 待完成验收
 
-安装 Docker 后，在 `infra` 目录执行 `Copy-Item .env.example .env` 和 `docker compose up -d`，再逐项检查端口和控制台。
+后续服务接入 MySQL 时使用 `localhost:13306`。
