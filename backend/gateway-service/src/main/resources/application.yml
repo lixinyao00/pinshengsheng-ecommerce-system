@@ -15,7 +15,11 @@ spring:
           uri: lb://product-service
           predicates:
             - Path=/api/product/**
-
+        # 将认证相关请求转发到 auth-service
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
 management:
   endpoints:
     web:
