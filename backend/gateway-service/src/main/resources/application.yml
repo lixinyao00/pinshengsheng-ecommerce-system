@@ -20,6 +20,11 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
+        # 后台商品管理请求转发到商品服务
+        - id: product-admin-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/admin/**
 management:
   endpoints:
     web:

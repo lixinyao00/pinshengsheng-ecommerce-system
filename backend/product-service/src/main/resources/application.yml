@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: product-service
+    # 商品服务连接本机 Docker 中的 MySQL
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
     nacos:
       discovery:
@@ -20,3 +26,8 @@ info:
   app:
     name: pinshengsheng-product-service
     description: 拼省省商品服务
+# MyBatis-Plus 开发配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

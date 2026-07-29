@@ -1,4 +1,4 @@
-package com.pinshengsheng.product;
+package com.pinshengsheng.product.controller;
 
 import com.pinshengsheng.common.api.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
