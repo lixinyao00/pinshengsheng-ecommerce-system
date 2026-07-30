@@ -2,6 +2,7 @@ package com.pinshengsheng.product.controller;
 
 import com.pinshengsheng.common.api.ApiResponse;
 import com.pinshengsheng.product.service.FileService;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +33,19 @@ public class FileController {
             data.put("url", imageUrl);
 
             return ApiResponse.success(data);
+        } catch (IllegalArgumentException exception) {
+            return ApiResponse.fail(400, exception.getMessage());
+        } catch (IllegalStateException exception) {
+            return ApiResponse.fail(500, exception.getMessage());
+        }
+    }
+
+    // 按上传接口返回的 URL 删除 MinIO 中的图片对象
+    @DeleteMapping("/image")
+    public ApiResponse<Void> deleteImage(@RequestParam("url") String imageUrl) {
+        try {
+            fileService.deleteImage(imageUrl);
+            return ApiResponse.success(null);
         } catch (IllegalArgumentException exception) {
             return ApiResponse.fail(400, exception.getMessage());
         } catch (IllegalStateException exception) {

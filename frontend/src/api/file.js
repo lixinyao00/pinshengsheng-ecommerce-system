@@ -7,3 +7,10 @@ export function uploadImage(file) {
 
   return request.post('/api/admin/file/image', formData)
 }
+
+// 删除已经上传到 MinIO 的图片
+export function deleteImage(url) {
+  return request.delete('/api/admin/file/image', {
+    params: { url }
+  })
+}

@@ -5,6 +5,7 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.SetBucketPolicyArgs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,22 @@ public class FileServiceImpl implements FileService {
             return buildFileUrl(objectName);
         } catch (Exception exception) {
             throw new IllegalStateException("图片上传失败", exception);
+        }
+    }
+
+    @Override
+    public void deleteImage(String imageUrl) {
+        String objectName = extractObjectName(imageUrl);
+
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+        } catch (Exception exception) {
+            throw new IllegalStateException("图片删除失败", exception);
         }
     }
 
@@ -121,6 +138,25 @@ public class FileServiceImpl implements FileService {
                 : endpoint;
 
         return baseUrl + "/" + bucketName + "/" + objectName;
+    }
+
+    // 只允许删除当前项目 Bucket 中的图片，避免接口被用于删除其他对象
+    private String extractObjectName(String imageUrl) {
+        if (!StringUtils.hasText(imageUrl)) {
+            throw new IllegalArgumentException("图片地址不能为空");
+        }
+
+        String prefix = buildFileUrl("");
+        if (!imageUrl.startsWith(prefix)) {
+            throw new IllegalArgumentException("图片地址不属于当前存储空间");
+        }
+
+        String objectName = imageUrl.substring(prefix.length());
+        if (!StringUtils.hasText(objectName)) {
+            throw new IllegalArgumentException("图片地址无效");
+        }
+
+        return objectName;
     }
 
     // 仅开放对象读取权限，不能匿名上传、删除或列出文件

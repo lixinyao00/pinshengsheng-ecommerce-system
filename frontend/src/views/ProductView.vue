@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getBrandList } from '../api/brand'
 import { getCategoryList } from '../api/category'
-import { uploadImage } from '../api/file'
+import { deleteImage, uploadImage } from '../api/file'
 import {
   createProduct,
   getProductPage,
@@ -250,6 +250,30 @@ async function handleImageUpload({ file }) {
   }
 }
 
+// 删除当前表单关联的图片，并清空商品主图地址
+async function removeProductImage() {
+  if (!productForm.mainImage) {
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm('确定要删除当前商品主图吗？', '操作确认', {
+      type: 'warning'
+    })
+
+    const result = await deleteImage(productForm.mainImage)
+    if (result.code !== 200) {
+      ElMessage.error(result.message)
+      return
+    }
+
+    productForm.mainImage = ''
+    ElMessage.success('图片已删除')
+  } catch {
+    // 用户取消操作时不提示错误
+  }
+}
+
 // 从商品行跳到 SKU 页面，并把商品 ID 放进地址参数
 function goSkuManagement(row) {
   router.push({ name: 'sku', query: { productId: row.id } })
@@ -413,13 +437,17 @@ onMounted(async () => {
               <el-button :loading="uploading">选择图片上传</el-button>
             </el-upload>
 
-            <el-image
-              v-if="productForm.mainImage"
-              :src="productForm.mainImage"
-              fit="cover"
-              class="form-image-preview"
-              :preview-src-list="[productForm.mainImage]"
-            />
+            <div v-if="productForm.mainImage" class="image-preview-wrapper">
+              <el-image
+                :src="productForm.mainImage"
+                fit="cover"
+                class="form-image-preview"
+                :preview-src-list="[productForm.mainImage]"
+              />
+              <el-button link type="danger" @click="removeProductImage">
+                删除图片
+              </el-button>
+            </div>
           </div>
         </el-form-item>
 
@@ -497,5 +525,11 @@ onMounted(async () => {
   height: 80px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
+}
+
+.image-preview-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>
