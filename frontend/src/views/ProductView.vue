@@ -4,9 +4,12 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getBrandList } from '../api/brand'
 import { getCategoryList } from '../api/category'
-import { deleteImage, uploadImage } from '../api/file'
+import { deleteImage as deleteMinioImage, uploadImage } from '../api/file'
 import {
+  createProductImage,
   createProduct,
+  deleteProductImage,
+  getProductImages,
   getProductPage,
   updateProduct,
   updateProductStatus
@@ -33,6 +36,12 @@ const dialogVisible = ref(false)
 const formRef = ref()
 const saving = ref(false)
 const uploading = ref(false)
+
+const carouselVisible = ref(false)
+const carouselLoading = ref(false)
+const carouselUploading = ref(false)
+const carouselProduct = ref(null)
+const carouselImages = ref([])
 
 const productForm = reactive({
   id: null,
@@ -261,7 +270,7 @@ async function removeProductImage() {
       type: 'warning'
     })
 
-    const result = await deleteImage(productForm.mainImage)
+    const result = await deleteMinioImage(productForm.mainImage)
     if (result.code !== 200) {
       ElMessage.error(result.message)
       return
@@ -269,6 +278,86 @@ async function removeProductImage() {
 
     productForm.mainImage = ''
     ElMessage.success('图片已删除')
+  } catch {
+    // 用户取消操作时不提示错误
+  }
+}
+
+async function loadCarouselImages() {
+  if (!carouselProduct.value) {
+    return
+  }
+
+  carouselLoading.value = true
+  try {
+    const result = await getProductImages(carouselProduct.value.id)
+    if (result.code === 200) {
+      carouselImages.value = result.data
+      return
+    }
+    ElMessage.error(result.message)
+  } catch {
+    ElMessage.error('轮播图加载失败')
+  } finally {
+    carouselLoading.value = false
+  }
+}
+
+async function openCarouselDialog(row) {
+  carouselProduct.value = row
+  carouselVisible.value = true
+  await loadCarouselImages()
+}
+
+// 先上传到 MinIO，再把返回 URL 保存为该商品的轮播图记录
+async function handleCarouselUpload({ file }) {
+  if (!carouselProduct.value) {
+    return
+  }
+
+  carouselUploading.value = true
+  try {
+    const uploadResult = await uploadImage(file)
+    if (uploadResult.code !== 200) {
+      ElMessage.error(uploadResult.message)
+      return
+    }
+
+    const saveResult = await createProductImage(carouselProduct.value.id, {
+      imageUrl: uploadResult.data.url,
+      sort: carouselImages.value.length
+    })
+
+    if (saveResult.code !== 200) {
+      // 轮播图记录保存失败时清理刚上传的孤立文件
+      await deleteMinioImage(uploadResult.data.url)
+      ElMessage.error(saveResult.message)
+      return
+    }
+
+    ElMessage.success('轮播图上传成功')
+    await loadCarouselImages()
+  } catch {
+    ElMessage.error('轮播图上传失败')
+  } finally {
+    carouselUploading.value = false
+  }
+}
+
+async function removeCarouselImage(image) {
+  try {
+    await ElMessageBox.confirm('确定要删除这张轮播图吗？', '操作确认', {
+      type: 'warning'
+    })
+
+    const result = await deleteProductImage(image.id)
+    if (result.code !== 200) {
+      ElMessage.error(result.message)
+      return
+    }
+
+    ElMessage.success('轮播图已删除')
+    await loadCarouselImages()
   } catch {
     // 用户取消操作时不提示错误
   }
@@ -346,13 +435,16 @@ onMounted(async () => {
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="210">
+      <el-table-column label="操作" width="270">
         <template #default="{ row }">
           <el-button link type="primary" @click="openEditDialog(row)">
             编辑
           </el-button>
           <el-button link type="primary" @click="goSkuManagement(row)">
             SKU
+          </el-button>
+          <el-button link type="primary" @click="openCarouselDialog(row)">
+            轮播图
           </el-button>
           <el-button
             link
@@ -484,6 +576,41 @@ onMounted(async () => {
         </el-button>
       </template>
     </el-dialog>
+
+    <!-- 已保存商品可在这里维护多张轮播图 -->
+    <el-dialog
+      v-model="carouselVisible"
+      :title="carouselProduct ? `${carouselProduct.name} - 轮播图` : '轮播图管理'"
+      width="720px"
+    >
+      <el-upload
+        accept="image/*"
+        :show-file-list="false"
+        :http-request="handleCarouselUpload"
+        :disabled="carouselUploading"
+      >
+        <el-button type="primary" :loading="carouselUploading">
+          上传轮播图
+        </el-button>
+      </el-upload>
+
+      <div v-loading="carouselLoading" class="carousel-image-list">
+        <div v-for="image in carouselImages" :key="image.id" class="carousel-image-item">
+          <el-image
+            :src="image.imageUrl"
+            fit="cover"
+            :preview-src-list="carouselImages.map((item) => item.imageUrl)"
+            class="carousel-image-preview"
+          />
+          <span>排序：{{ image.sort }}</span>
+          <el-button link type="danger" @click="removeCarouselImage(image)">
+            删除
+          </el-button>
+        </div>
+
+        <el-empty v-if="!carouselLoading && carouselImages.length === 0" description="暂无轮播图" />
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -531,5 +658,26 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.carousel-image-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.carousel-image-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #606266;
+}
+
+.carousel-image-preview {
+  width: 100%;
+  height: 140px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
 }
 </style>

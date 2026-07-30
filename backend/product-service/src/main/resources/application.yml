@@ -10,7 +10,13 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
-    # 商品服务连接本机 Docker 中的 MySQL
+
+  # 开发环境中执行 schema.sql，自动补齐新增业务表
+  sql:
+    init:
+      mode: always
+
+  # 商品服务连接本机 Docker 中的 MySQL
   datasource:
     url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: root

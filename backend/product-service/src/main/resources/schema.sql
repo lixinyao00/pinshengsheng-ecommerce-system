@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS pss_product_image (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    product_id BIGINT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    sort INT NOT NULL DEFAULT 0,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_product_image_product_id (product_id)
+);
