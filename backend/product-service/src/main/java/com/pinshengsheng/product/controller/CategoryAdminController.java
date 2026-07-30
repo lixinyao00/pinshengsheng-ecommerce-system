@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 后台分类管理接口，负责维护分类层级和启用状态
 @RestController
 @RequestMapping("/api/admin/category")
 public class CategoryAdminController {
@@ -26,6 +27,7 @@ public class CategoryAdminController {
     @PostMapping
     public ApiResponse<Category> createCategory(
             @RequestBody CategorySaveRequest request) {
+        // 分类名称是创建分类的最小必要信息
         if (request.getName() == null || request.getName().isBlank()) {
             return ApiResponse.fail(400, "分类名称不能为空");
         }
@@ -61,6 +63,7 @@ public class CategoryAdminController {
     }
 
     private boolean validStatus(Integer status) {
+        // 与品牌、商品保持同一套状态约定
         return Integer.valueOf(0).equals(status)
                 || Integer.valueOf(1).equals(status);
     }

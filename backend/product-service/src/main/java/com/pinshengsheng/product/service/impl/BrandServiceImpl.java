@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 品牌的查询、保存和上下架规则集中在这里处理
 @Service
 public class BrandServiceImpl implements BrandService {
     private final BrandMapper brandMapper;
@@ -20,6 +21,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public List<Brand> getEnabledBrands() {
+        // 商城用户端只展示已启用的品牌
         LambdaQueryWrapper<Brand> queryWrapper = new LambdaQueryWrapper<>();
 
         queryWrapper.eq(Brand::getStatus, 1)
@@ -31,6 +33,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public List<Brand> getAllBrands() {
+        // 后台管理页需要看到已下架品牌，因此不按状态过滤
         LambdaQueryWrapper<Brand> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(Brand::getSort).orderByDesc(Brand::getId);
         return brandMapper.selectList(queryWrapper);
@@ -39,6 +42,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional
     public Brand createBrand(BrandSaveRequest request) {
+        // 未传排序和状态时，使用默认排序和启用状态
         Brand brand = new Brand();
         copyRequest(request, brand);
         brand.setSort(request.getSort() == null ? 0 : request.getSort());
@@ -77,6 +81,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     private void copyRequest(BrandSaveRequest request, Brand brand) {
+        // 新增和编辑共用字段复制，避免两处赋值逻辑不一致
         brand.setName(request.getName());
         brand.setLogo(request.getLogo());
     }

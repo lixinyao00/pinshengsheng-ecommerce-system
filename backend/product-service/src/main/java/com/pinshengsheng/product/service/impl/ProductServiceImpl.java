@@ -9,7 +9,7 @@ import com.pinshengsheng.product.service.ProductService;
 import org.springframework.stereotype.Service;
 
 
-// 商品业务实现类，负责调用 Mapper 并处理业务规则
+// 商品业务实现类：用户端只看上架商品，后台可以管理全部商品
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -31,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(ProductSaveRequest request) {
+        // DTO 只负责接收请求，转换成实体后再写入商品表
         Product product = new Product();
         product.setBrandId(request.getBrandId());
         product.setCategoryId(request.getCategoryId());
@@ -57,6 +58,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(Long id, ProductSaveRequest request) {
         Product product = productMapper.selectById(id);
+        // 先查再改，避免 updateById 对不存在的商品产生误导
         if(product == null){
             return null;
         }
@@ -81,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
         if(product == null){
             return false;
         }
+        // 目前约定：0 为下架，1 为上架
         if (!Integer.valueOf(0).equals(status)
                 && !Integer.valueOf(1).equals(status)) {
             return false;

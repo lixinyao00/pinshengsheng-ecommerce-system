@@ -1,10 +1,11 @@
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import { useUserStore } from '../stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
+const route = useRoute()
 
 // 根据当前角色生成可见菜单，后续会替换为后端返回的菜单数据
 const menus = computed(() => {
@@ -16,6 +17,22 @@ const menus = computed(() => {
     {
       index: '/admin/dashboard',
       title: '后台首页'
+    },
+    {
+      index: '/admin/brands',
+      title: '品牌管理'
+    },
+    {
+      index: '/admin/categories',
+      title: '分类管理'
+    },
+    {
+      index: '/admin/products',
+      title: '商品管理'
+    },
+    {
+      index: '/admin/skus',
+      title: 'SKU 与库存'
     }
   ]
 })
@@ -35,7 +52,7 @@ function handleLogout() {
       <!-- 当前角色可访问的后台菜单 -->
       <el-menu
         router
-        default-active="/admin/dashboard"
+        :default-active="route.path"
         background-color="#1f2937"
         text-color="#cbd5e1"
         active-text-color="#ffffff"

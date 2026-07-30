@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 后台 SKU 管理接口：规格信息和库存信息在这里一起维护
 @RestController
 @RequestMapping("/api/admin/sku")
 public class SkuAdminController {
@@ -21,6 +22,7 @@ public class SkuAdminController {
     @GetMapping("/list")
     public ApiResponse<List<SkuStockVO>> getSkuList(
             @RequestParam("productId") Long productId) {
+        // 返回 SKU 和库存的组合对象，前端无需再发第二次库存请求
         return ApiResponse.success(skuService.getSkuList(productId));
     }
 
@@ -66,6 +68,7 @@ public class SkuAdminController {
     public ApiResponse<Void> updateStock(
             @PathVariable Long id,
             @RequestParam("availableStock") Integer availableStock) {
+        // 可用库存不能为负数，锁定库存后续在下单流程中维护
         if (availableStock == null || availableStock < 0) {
             return ApiResponse.fail(400, "可用库存不能小于 0");
         }
@@ -75,6 +78,7 @@ public class SkuAdminController {
     }
 
     private boolean validRequest(SkuSaveRequest request) {
+        // 在 Controller 先挡住明显无效的数据，Service 再处理关联关系和重复编码
         return request.getProductId() != null
                 && request.getSkuCode() != null
                 && !request.getSkuCode().isBlank()

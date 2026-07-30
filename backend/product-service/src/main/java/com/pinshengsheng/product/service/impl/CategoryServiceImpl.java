@@ -15,6 +15,7 @@ import java.util.Map;
 
 import java.util.List;
 
+// 分类除了基础增改查，还负责维护分类层级和树形结构
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -78,6 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllCategories() {
+        // 后台需要管理全部分类，包含已停用的分类
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(Category::getLevelNum)
                 .orderByAsc(Category::getSort)
@@ -88,6 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public Category createCategory(CategorySaveRequest request) {
+        // 父分类不存在时不允许创建，避免出现无法挂载的节点
         Category category = new Category();
         if (!fillCategory(request, category)) {
             return null;
@@ -102,6 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public Category updateCategory(Long id, CategorySaveRequest request) {
         Category category = categoryMapper.selectById(id);
+        // 分类不能把自己设为自己的父分类
         if (category == null || id.equals(request.getParentId())) {
             return null;
         }
@@ -140,6 +144,7 @@ public class CategoryServiceImpl implements CategoryService {
             return true;
         }
 
+        // 子分类的层级始终比父分类大 1
         Category parent = categoryMapper.selectById(parentId);
         if (parent == null) {
             return false;

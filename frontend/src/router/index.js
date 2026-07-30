@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
+import BrandView from "../views/BrandView.vue";
+import CategoryView from "../views/CategoryView.vue";
+import ProductView from "../views/ProductView.vue";
+import SkuView from '../views/SkuView.vue'
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
@@ -26,6 +30,26 @@ const routes = [
         path: 'dashboard',
         name: 'dashboard',
         component: DashboardView
+      },
+      {
+        path: 'brands',
+        name: 'brand',
+        component: BrandView
+      },
+      {
+        path: 'categories',
+        name: 'category',
+        component: CategoryView
+      },
+      {
+        path: 'products',
+        name: 'product',
+        component: ProductView
+      },
+      {
+        path: 'skus',
+        name: 'sku',
+        component: SkuView
       }
     ]
   }

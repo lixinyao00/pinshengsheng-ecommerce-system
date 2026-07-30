@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 后台商品管理接口：新增、分页、编辑和上下架
 @RestController
 @RequestMapping("/api/admin/product")
 public class ProductAdminController {
@@ -21,6 +22,7 @@ public class ProductAdminController {
     @PostMapping
     public ApiResponse<Product> createProduct(
             @RequestBody ProductSaveRequest request){
+        // 在进入业务层前先校验商品最基本的必填字段
         if (request.getBrandId() == null
         || request.getCategoryId() == null
         || request.getName() == null
@@ -36,6 +38,7 @@ public class ProductAdminController {
     public ApiResponse<Page<Product>> getProductsPage(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "10") long size){
+        // 限制单页大小，避免一次查询过多商品
         if (page < 1 || size < 1|| size > 100){
             return ApiResponse.fail(400,"页码必须大于 0，单页数量不能超过 100");
         }
@@ -64,6 +67,7 @@ public class ProductAdminController {
             @PathVariable Long id,
             @RequestParam("status") Integer status
     ){
+        // 状态由请求参数传入，例如 ?status=0
         if(!Integer.valueOf(1).equals(status)&&!Integer.valueOf(0).equals(status)){
             return ApiResponse.fail(400,"商品状态只能是 0 或 1");
         }

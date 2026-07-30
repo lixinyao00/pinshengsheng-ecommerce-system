@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+// SKU 是商品的可售规格，库存单独放在 pss_sku_stock 表中维护
 @Service
 public class SkuServiceImpl implements SkuService {
 
@@ -34,6 +35,7 @@ public class SkuServiceImpl implements SkuService {
 
     @Override
     public List<SkuStockVO> getSkuList(Long productId) {
+        // 一个商品可以有多个 SKU，例如同款耳机的黑色和白色版本
         LambdaQueryWrapper<Sku> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Sku::getProductId, productId).orderByAsc(Sku::getId);
 
@@ -49,6 +51,7 @@ public class SkuServiceImpl implements SkuService {
     @Transactional
     public SkuStockVO createSku(SkuSaveRequest request) {
         Product product = productMapper.selectById(request.getProductId());
+        // SKU 编码在系统内唯一，重复时不能继续写入
         if (product == null || skuCodeExists(request.getSkuCode(), null)) {
             return null;
         }
@@ -58,6 +61,7 @@ public class SkuServiceImpl implements SkuService {
         sku.setStatus(request.getStatus() == null ? 1 : request.getStatus());
         skuMapper.insert(sku);
 
+        // SKU 新建成功后，立刻创建对应库存记录
         SkuStock stock = new SkuStock();
         stock.setSkuId(sku.getId());
         stock.setAvailableStock(request.getAvailableStock() == null
@@ -83,6 +87,7 @@ public class SkuServiceImpl implements SkuService {
         }
         skuMapper.updateById(sku);
 
+        // 编辑 SKU 时可以顺带修改库存，但库存更新仍走独立方法
         if (request.getAvailableStock() != null) {
             updateAvailableStock(id, request.getAvailableStock());
         }
@@ -109,6 +114,7 @@ public class SkuServiceImpl implements SkuService {
         }
 
         SkuStock stock = getStock(skuId);
+        // 兼容早期 SKU 没有库存记录的情况，首次修改时补建库存
         if (stock == null) {
             stock = new SkuStock();
             stock.setSkuId(skuId);
@@ -124,6 +130,7 @@ public class SkuServiceImpl implements SkuService {
     private boolean skuCodeExists(String skuCode, Long excludeId) {
         LambdaQueryWrapper<Sku> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Sku::getSkuCode, skuCode);
+        // 编辑时排除自己，避免原编码被误判为重复
         if (excludeId != null) {
             queryWrapper.ne(Sku::getId, excludeId);
         }
@@ -145,6 +152,7 @@ public class SkuServiceImpl implements SkuService {
     }
 
     private SkuStockVO buildSkuStockVO(Sku sku) {
+        // 管理端列表需要同时拿到规格信息和库存信息
         SkuStock stock = getStock(sku.getId());
         SkuStockVO vo = new SkuStockVO();
         vo.setSku(sku);
