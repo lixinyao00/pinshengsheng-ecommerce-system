@@ -55,6 +55,16 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.selectPage(productPage, queryWrapper);
     }
 
+    // 商城只查询已上架商品，避免把后台下架数据展示给用户
+    @Override
+    public Page<Product> getEnabledProducts(long page, long size) {
+        Page<Product> productPage = new Page<>(page, size);
+        LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Product::getStatus, 1)
+                .orderByDesc(Product::getId);
+        return productMapper.selectPage(productPage, queryWrapper);
+    }
+
     @Override
     public Product updateProduct(Long id, ProductSaveRequest request) {
         Product product = productMapper.selectById(id);

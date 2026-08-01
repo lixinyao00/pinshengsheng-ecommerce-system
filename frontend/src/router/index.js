@@ -6,17 +6,33 @@ import BrandView from "../views/BrandView.vue";
 import CategoryView from "../views/CategoryView.vue";
 import ProductView from "../views/ProductView.vue";
 import SkuView from '../views/SkuView.vue'
+import MallLoginView from '../views/MallLoginView.vue'
+import MallHomeView from '../views/MallHomeView.vue'
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/mall/login'
   },
   {
     path: '/login',
     name: 'login',
     component: LoginView
+  },
+  {
+    path: '/mall/login',
+    name: 'mall-login',
+    component: MallLoginView
+  },
+  {
+    path: '/mall/home',
+    name: 'mall-home',
+    component: MallHomeView,
+    meta: {
+      requiresAuth: true,
+      userOnly: true
+    }
   },
   {
     path: '/admin',
@@ -66,16 +82,24 @@ router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
 
-  if (to.meta.requiresAuth && !token) {
+  if (to.meta.userOnly && (!token || role !== 'USER')) {
+    return { name: 'mall-login' }
+  }
+
+  if (to.meta.adminOnly && (!token || role !== 'ADMIN')) {
     return { name: 'login' }
   }
 
-  if (to.meta.adminOnly && role !== 'ADMIN') {
+  if (to.meta.requiresAuth && !token) {
     return { name: 'login' }
   }
 
   if (to.name === 'login' && token && role === 'ADMIN') {
     return { name: 'dashboard' }
+  }
+
+  if (to.name === 'mall-login' && token && role === 'USER') {
+    return { name: 'mall-home' }
   }
 
   return true

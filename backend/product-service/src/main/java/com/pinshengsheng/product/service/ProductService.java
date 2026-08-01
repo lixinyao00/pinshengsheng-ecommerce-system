@@ -8,6 +8,7 @@ public interface ProductService {
     Product getProductById(Long id);
     Product createProduct(ProductSaveRequest request);
     Page<Product> getAllProducts(long page, long size);
+    Page<Product> getEnabledProducts(long page, long size);
     Product updateProduct(Long id, ProductSaveRequest request);
     boolean updateProductStatus(Long id, Integer status);
 }
