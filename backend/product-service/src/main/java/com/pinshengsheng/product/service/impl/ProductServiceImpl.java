@@ -54,17 +54,18 @@ public class ProductServiceImpl implements ProductService {
         queryWrapper.orderByDesc(Product::getId);
         return productMapper.selectPage(productPage, queryWrapper);
     }
-
-    // 商城只查询已上架商品，避免把后台下架数据展示给用户
     @Override
     public Page<Product> getEnabledProducts(long page, long size) {
+        // 创建分页对象
         Page<Product> productPage = new Page<>(page, size);
+
+        // 只查询已经上架的商品
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Product::getStatus, 1)
-                .orderByDesc(Product::getId);
+        queryWrapper.eq(Product::getStatus, 1);
+        queryWrapper.orderByDesc(Product::getId);
+
         return productMapper.selectPage(productPage, queryWrapper);
     }
-
     @Override
     public Product updateProduct(Long id, ProductSaveRequest request) {
         Product product = productMapper.selectById(id);
@@ -101,6 +102,5 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(status);
         return productMapper.updateById(product) > 0;
     }
-
 
 }

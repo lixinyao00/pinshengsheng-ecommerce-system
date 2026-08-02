@@ -79,6 +79,12 @@ async function handleLogin() {
         >
           登录
         </el-button>
+        <el-link
+          class="mall-link"
+          type="info"
+          href="/mall/login">
+          进入用户登录界面
+        </el-link>
       </el-form>
     </el-card>
   </main>

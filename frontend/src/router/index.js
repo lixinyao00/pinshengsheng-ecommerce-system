@@ -7,7 +7,7 @@ import CategoryView from "../views/CategoryView.vue";
 import ProductView from "../views/ProductView.vue";
 import SkuView from '../views/SkuView.vue'
 import MallLoginView from '../views/MallLoginView.vue'
-import MallHomeView from '../views/MallHomeView.vue'
+import MallHomeView from "../views/MallHomeView.vue";
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
@@ -82,24 +82,21 @@ router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
 
+  // 商城页面只允许普通用户访问
   if (to.meta.userOnly && (!token || role !== 'USER')) {
     return { name: 'mall-login' }
-  }
-
-  if (to.meta.adminOnly && (!token || role !== 'ADMIN')) {
-    return { name: 'login' }
   }
 
   if (to.meta.requiresAuth && !token) {
     return { name: 'login' }
   }
 
-  if (to.name === 'login' && token && role === 'ADMIN') {
-    return { name: 'dashboard' }
+  if (to.meta.adminOnly && role !== 'ADMIN') {
+    return { name: 'login' }
   }
 
-  if (to.name === 'mall-login' && token && role === 'USER') {
-    return { name: 'mall-home' }
+  if (to.name === 'login' && token && role === 'ADMIN') {
+    return { name: 'dashboard' }
   }
 
   return true
