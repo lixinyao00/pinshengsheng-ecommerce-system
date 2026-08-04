@@ -1,6 +1,7 @@
 <script setup>
 // 引入 Vue 的响应式和生命周期工具
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 // 引入商城首页相关接口
 import {
   getMallBrandList,
@@ -11,6 +12,7 @@ import {
 import { useUserStore } from '../stores/user'
 // 获取当前登录用户信息
 const userStore = useUserStore()
+const router = useRouter()
 // 页面加载状态
 const loading = ref(true)
 
@@ -32,6 +34,10 @@ function selectCategory(categoryId) {
 // 记录用户选择的品牌
 function selectBrand(brandId) {
   selectedBrandId.value = brandId
+}
+
+function openProductDetail(productId) {
+  router.push({ name: 'mall-product-detail', params: { id: productId } })
 }
 // 根据当前选择的分类和品牌计算可见商品
 const visibleProducts = computed(() => {
@@ -164,10 +170,14 @@ onMounted(loadMallHome)
             v-for="product in visibleProducts"
           :key="product.id"
           class="product-card"
-          shadow="hover">
+          shadow="hover"
+          @click="openProductDetail(product.id)">
+          <div class="product-card-inner">
           <h3>{{ product.name }}</h3>
           <p>{{ product.subtitle || product.description }}</p>
           <strong>¥{{ product.minPrice }}</strong>
+          <el-button type="primary" link>查看详情</el-button>
+          </div>
         </el-card>
       </div>
       <!-- 没有商品时显示提示 -->
@@ -258,15 +268,24 @@ onMounted(loadMallHome)
 
 .product-card {
   min-height: 150px;
+  cursor: pointer;
+}
+
+.product-card-inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
 }
 .product-card h3 {
   margin: 0 0 10px;
+  line-height: 1.4;
 }
 
 .product-card p {
   min-height: 40px;
   margin: 0 0 12px;
   color: #909399;
+  flex: 1;
 }
 
 .product-card strong {

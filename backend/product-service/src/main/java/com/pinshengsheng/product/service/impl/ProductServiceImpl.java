@@ -2,22 +2,46 @@ package com.pinshengsheng.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pinshengsheng.product.entity.Brand;
+import com.pinshengsheng.product.entity.Category;
 import com.pinshengsheng.product.dto.ProductSaveRequest;
 import com.pinshengsheng.product.entity.Product;
+import com.pinshengsheng.product.entity.ProductImage;
 import com.pinshengsheng.product.mapper.ProductMapper;
+import com.pinshengsheng.product.service.BrandService;
+import com.pinshengsheng.product.service.CategoryService;
+import com.pinshengsheng.product.service.ProductImageService;
 import com.pinshengsheng.product.service.ProductService;
+import com.pinshengsheng.product.service.SkuService;
+import com.pinshengsheng.product.vo.ProductDetailVO;
+import com.pinshengsheng.product.vo.SkuStockVO;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 
 // 商品业务实现类：用户端只看上架商品，后台可以管理全部商品
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
+    private final BrandService brandService;
+    private final CategoryService categoryService;
+    private final ProductImageService productImageService;
+    private final SkuService skuService;
 
     // Spring 自动注入 ProductMapper
-    public ProductServiceImpl(ProductMapper productMapper) {
+    public ProductServiceImpl(
+            ProductMapper productMapper,
+            BrandService brandService,
+            CategoryService categoryService,
+            ProductImageService productImageService,
+            SkuService skuService) {
         this.productMapper = productMapper;
+        this.brandService = brandService;
+        this.categoryService = categoryService;
+        this.productImageService = productImageService;
+        this.skuService = skuService;
     }
     // 查询商品，同时过滤不存在或已下架的商品
     @Override
@@ -27,6 +51,28 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
         return product;
+    }
+
+    @Override
+    public ProductDetailVO getProductDetail(Long id) {
+        Product product = getProductById(id);
+        if (product == null) {
+            return null;
+        }
+
+        Brand brand = brandService.getBrandById(product.getBrandId());
+        Category category = categoryService.getCategoryById(product.getCategoryId());
+        List<ProductImage> images = productImageService.getProductImages(id);
+        List<SkuStockVO> skuList = skuService.getSkuList(id);
+
+        ProductDetailVO detailVO = new ProductDetailVO();
+        detailVO.setProduct(product);
+        detailVO.setBrand(brand);
+        detailVO.setCategory(category);
+        detailVO.setImages(images == null ? Collections.emptyList() : images);
+        detailVO.setSkuList(skuList == null ? Collections.emptyList() : skuList);
+        detailVO.setSelectedSku(selectDefaultSku(detailVO.getSkuList()));
+        return detailVO;
     }
 
     @Override
@@ -101,6 +147,20 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setStatus(status);
         return productMapper.updateById(product) > 0;
+    }
+
+    private SkuStockVO selectDefaultSku(List<SkuStockVO> skuList) {
+        if (skuList == null || skuList.isEmpty()) {
+            return null;
+        }
+
+        for (SkuStockVO skuStockVO : skuList) {
+            if (skuStockVO.getSku() != null
+                    && Integer.valueOf(1).equals(skuStockVO.getSku().getStatus())) {
+                return skuStockVO;
+            }
+        }
+        return skuList.get(0);
     }
 
 }

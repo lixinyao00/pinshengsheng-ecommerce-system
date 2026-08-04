@@ -9,6 +9,8 @@ import java.util.List;
 public interface CategoryService {
     List<Category> getEnabledCategories();
 
+    Category getCategoryById(Long id);
+
     List<CategoryTreeVO> getCategoryTree();
 
     List<Category> getAllCategories();

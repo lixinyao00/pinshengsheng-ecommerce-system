@@ -35,6 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryMapper.selectList(queryWrapper);
     }
+
+    @Override
+    public Category getCategoryById(Long id) {
+        return categoryMapper.selectById(id);
+    }
     // 将扁平分类列表组装为树形结构
     @Override
     public List<CategoryTreeVO> getCategoryTree() {

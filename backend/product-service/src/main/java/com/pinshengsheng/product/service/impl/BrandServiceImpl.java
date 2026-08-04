@@ -32,6 +32,11 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public Brand getBrandById(Long id) {
+        return brandMapper.selectById(id);
+    }
+
+    @Override
     public List<Brand> getAllBrands() {
         // 后台管理页需要看到已下架品牌，因此不按状态过滤
         LambdaQueryWrapper<Brand> queryWrapper = new LambdaQueryWrapper<>();

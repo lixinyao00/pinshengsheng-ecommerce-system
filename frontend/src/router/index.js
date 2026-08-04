@@ -8,6 +8,7 @@ import ProductView from "../views/ProductView.vue";
 import SkuView from '../views/SkuView.vue'
 import MallLoginView from '../views/MallLoginView.vue'
 import MallHomeView from "../views/MallHomeView.vue";
+import MallProductDetailView from "../views/MallProductDetailView.vue";
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
@@ -29,6 +30,15 @@ const routes = [
     path: '/mall/home',
     name: 'mall-home',
     component: MallHomeView,
+    meta: {
+      requiresAuth: true,
+      userOnly: true
+    }
+  },
+  {
+    path: '/mall/product/:id',
+    name: 'mall-product-detail',
+    component: MallProductDetailView,
     meta: {
       requiresAuth: true,
       userOnly: true

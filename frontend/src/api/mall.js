@@ -13,3 +13,8 @@ export function getMallBrandList() {
 export function getMallProductPage(param) {
     return request.get('/api/product/page', { params: param })
 }
+
+// 查询商城商品详情
+export function getMallProductDetail(id) {
+    return request.get(`/api/product/detail/${id}`)
+}
