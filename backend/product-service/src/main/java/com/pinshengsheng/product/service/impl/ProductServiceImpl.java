@@ -2,6 +2,7 @@ package com.pinshengsheng.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.pinshengsheng.product.common.ProductDetailCacheService;
 import com.pinshengsheng.product.entity.Brand;
 import com.pinshengsheng.product.entity.Category;
 import com.pinshengsheng.product.dto.ProductSaveRequest;
@@ -15,6 +16,8 @@ import com.pinshengsheng.product.service.ProductService;
 import com.pinshengsheng.product.service.SkuService;
 import com.pinshengsheng.product.vo.ProductDetailVO;
 import com.pinshengsheng.product.vo.SkuStockVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -24,11 +27,14 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     private final ProductMapper productMapper;
     private final BrandService brandService;
     private final CategoryService categoryService;
     private final ProductImageService productImageService;
     private final SkuService skuService;
+    private final ProductDetailCacheService productDetailCacheService;
 
     // Spring 自动注入 ProductMapper
     public ProductServiceImpl(
@@ -36,12 +42,14 @@ public class ProductServiceImpl implements ProductService {
             BrandService brandService,
             CategoryService categoryService,
             ProductImageService productImageService,
-            SkuService skuService) {
+            SkuService skuService,
+            ProductDetailCacheService productDetailCacheService) {
         this.productMapper = productMapper;
         this.brandService = brandService;
         this.categoryService = categoryService;
         this.productImageService = productImageService;
         this.skuService = skuService;
+        this.productDetailCacheService = productDetailCacheService;
     }
     // 查询商品，同时过滤不存在或已下架的商品
     @Override
@@ -55,10 +63,29 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailVO getProductDetail(Long id) {
-        Product product = getProductById(id);
-        if (product == null) {
+        ProductDetailCacheService.CacheLookupResult cacheResult =
+                productDetailCacheService.readProductDetailCache(id);
+        if (cacheResult.isHit()) {
+            return cacheResult.isEmpty() ? null : cacheResult.getDetailVO();
+        }
+
+        ProductDetailVO detailVO = loadProductDetailFromDb(id);
+        if (detailVO == null) {
+            productDetailCacheService.writeEmptyCache(id);
             return null;
         }
+
+        productDetailCacheService.writeProductDetailCache(id, detailVO);
+        return detailVO;
+    }
+
+    private ProductDetailVO loadProductDetailFromDb(Long id) {
+        Product product = getProductById(id);
+        if (product == null) {
+            log.info("商品详情查询数据库未命中，productId={}", id);
+            return null;
+        }
+        log.info("商品详情查询数据库成功，productId={}", id);
 
         Brand brand = brandService.getBrandById(product.getBrandId());
         Category category = categoryService.getCategoryById(product.getCategoryId());
@@ -130,6 +157,7 @@ public class ProductServiceImpl implements ProductService {
             product.setStatus(request.getStatus());
         }
         productMapper.updateById(product);
+        productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(id);
 
         return product;
     }
@@ -146,7 +174,11 @@ public class ProductServiceImpl implements ProductService {
             return false;
         }
         product.setStatus(status);
-        return productMapper.updateById(product) > 0;
+        boolean updated = productMapper.updateById(product) > 0;
+        if (updated) {
+            productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(id);
+        }
+        return updated;
     }
 
     private SkuStockVO selectDefaultSku(List<SkuStockVO> skuList) {

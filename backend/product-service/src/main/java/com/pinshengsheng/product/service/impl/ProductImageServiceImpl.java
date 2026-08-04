@@ -1,6 +1,7 @@
 package com.pinshengsheng.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pinshengsheng.product.common.ProductDetailCacheService;
 import com.pinshengsheng.product.dto.ProductImageSaveRequest;
 import com.pinshengsheng.product.entity.Product;
 import com.pinshengsheng.product.entity.ProductImage;
@@ -16,12 +17,15 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     private final ProductMapper productMapper;
     private final ProductImageMapper productImageMapper;
+    private final ProductDetailCacheService productDetailCacheService;
 
     public ProductImageServiceImpl(
             ProductMapper productMapper,
-            ProductImageMapper productImageMapper) {
+            ProductImageMapper productImageMapper,
+            ProductDetailCacheService productDetailCacheService) {
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
+        this.productDetailCacheService = productDetailCacheService;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         productImage.setImageUrl(request.getImageUrl());
         productImage.setSort(request.getSort() == null ? 0 : request.getSort());
         productImageMapper.insert(productImage);
+        productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(productId);
         return productImage;
     }
 
@@ -55,6 +60,15 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public boolean deleteProductImage(Long imageId) {
-        return productImageMapper.deleteById(imageId) > 0;
+        ProductImage productImage = productImageMapper.selectById(imageId);
+        if (productImage == null) {
+            return false;
+        }
+
+        boolean deleted = productImageMapper.deleteById(imageId) > 0;
+        if (deleted) {
+            productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(productImage.getProductId());
+        }
+        return deleted;
     }
 }
