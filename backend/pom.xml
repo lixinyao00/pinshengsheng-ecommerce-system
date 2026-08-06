@@ -28,6 +28,7 @@
         <module>gateway-service</module>
         <module>auth-service</module>
         <module>product-service</module>
+        <module>cart-service</module>
     </modules>
 
     <dependencyManagement>
