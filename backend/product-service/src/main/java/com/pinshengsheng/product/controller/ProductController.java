@@ -28,17 +28,6 @@ public class ProductController {
         }
         return ApiResponse.success(product);
     }
-
-    // 查询商品详情，供商城用户端展示商品、SKU、图片和品牌分类信息
-    @GetMapping("/detail/{id}")
-    public ApiResponse<ProductDetailVO> getProductDetail(@PathVariable Long id) {
-        ProductDetailVO detailVO = productService.getProductDetail(id);
-        if (detailVO == null) {
-            return ApiResponse.fail(404, "商品不存在或已下架");
-        }
-        return ApiResponse.success(detailVO);
-    }
-
     // 查询商城首页可以展示的商品
     @GetMapping("/page")
     public ApiResponse<Page<Product>> getMallProductPage(
@@ -48,6 +37,16 @@ public class ProductController {
         return ApiResponse.success(
                 productService.getEnabledProducts(page, size)
         );
+    }
+    @GetMapping("/detail/{id}")
+    public ApiResponse<ProductDetailVO> getProductDetail(
+            @PathVariable Long id
+    ){
+        ProductDetailVO productDetail = productService.getProductDetail(id);
+        if (productDetail == null) {
+            return ApiResponse.fail(404, "商品不存在或已下架");
+        }
+        return ApiResponse.success(productDetail);
     }
 
 }

@@ -2,54 +2,57 @@ package com.pinshengsheng.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.pinshengsheng.product.common.ProductDetailCacheService;
+import com.pinshengsheng.product.dto.ProductSaveRequest;
 import com.pinshengsheng.product.entity.Brand;
 import com.pinshengsheng.product.entity.Category;
-import com.pinshengsheng.product.dto.ProductSaveRequest;
 import com.pinshengsheng.product.entity.Product;
 import com.pinshengsheng.product.entity.ProductImage;
 import com.pinshengsheng.product.mapper.ProductMapper;
-import com.pinshengsheng.product.service.BrandService;
-import com.pinshengsheng.product.service.CategoryService;
-import com.pinshengsheng.product.service.ProductImageService;
-import com.pinshengsheng.product.service.ProductService;
-import com.pinshengsheng.product.service.SkuService;
+import com.pinshengsheng.product.service.*;
 import com.pinshengsheng.product.vo.ProductDetailVO;
 import com.pinshengsheng.product.vo.SkuStockVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import com.pinshengsheng.product.common.ProductDetailCacheService;
+import com.pinshengsheng.product.common.ProductExistsBitmapService;
 
-import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.List;
+
 
 // 商品业务实现类：用户端只看上架商品，后台可以管理全部商品
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
-
     private final ProductMapper productMapper;
     private final BrandService brandService;
     private final CategoryService categoryService;
-    private final ProductImageService productImageService;
     private final SkuService skuService;
-    private final ProductDetailCacheService productDetailCacheService;
+    private final ProductImageService productImageService;
+    private final ProductDetailCacheService cacheService;
+    private final ProductExistsBitmapService productExistsBitmapService;
+    private final Executor productDetailExecutor;
+
 
     // Spring 自动注入 ProductMapper
     public ProductServiceImpl(
             ProductMapper productMapper,
             BrandService brandService,
             CategoryService categoryService,
-            ProductImageService productImageService,
             SkuService skuService,
-            ProductDetailCacheService productDetailCacheService) {
+            ProductImageService productImageService,
+            ProductDetailCacheService cacheService,
+            ProductExistsBitmapService productExistsBitmapService,
+            @Qualifier("productDetailExecutor") Executor productDetailExecutor) {
         this.productMapper = productMapper;
         this.brandService = brandService;
         this.categoryService = categoryService;
-        this.productImageService = productImageService;
         this.skuService = skuService;
-        this.productDetailCacheService = productDetailCacheService;
+        this.productImageService = productImageService;
+        this.cacheService = cacheService;
+        this.productExistsBitmapService = productExistsBitmapService;
+        this.productDetailExecutor = productDetailExecutor;
     }
     // 查询商品，同时过滤不存在或已下架的商品
     @Override
@@ -60,45 +63,58 @@ public class ProductServiceImpl implements ProductService {
         }
         return product;
     }
-
     @Override
     public ProductDetailVO getProductDetail(Long id) {
-        ProductDetailCacheService.CacheLookupResult cacheResult =
-                productDetailCacheService.readProductDetailCache(id);
-        if (cacheResult.isHit()) {
-            return cacheResult.isEmpty() ? null : cacheResult.getDetailVO();
+        ProductDetailVO cachedDetail = cacheService.get(id);
+
+        if (cachedDetail != null) {
+            return cachedDetail;
         }
 
-        ProductDetailVO detailVO = loadProductDetailFromDb(id);
-        if (detailVO == null) {
-            productDetailCacheService.writeEmptyCache(id);
+        // Bitmap 为 0 时可以直接确认商品不存在，避免无效请求反复访问 MySQL
+        if (!productExistsBitmapService.mayExist(id)) {
             return null;
         }
 
-        productDetailCacheService.writeProductDetailCache(id, detailVO);
-        return detailVO;
-    }
-
-    private ProductDetailVO loadProductDetailFromDb(Long id) {
         Product product = getProductById(id);
         if (product == null) {
-            log.info("商品详情查询数据库未命中，productId={}", id);
             return null;
         }
-        log.info("商品详情查询数据库成功，productId={}", id);
 
-        Brand brand = brandService.getBrandById(product.getBrandId());
-        Category category = categoryService.getCategoryById(product.getCategoryId());
-        List<ProductImage> images = productImageService.getProductImages(id);
-        List<SkuStockVO> skuList = skuService.getSkuList(id);
+        // 品牌、分类、SKU 和图片相互独立，可以交给不同线程并行查询
+        CompletableFuture<Brand> brandFuture = CompletableFuture.supplyAsync(
+                () -> brandService.getBrandById(product.getBrandId()),
+                productDetailExecutor
+        );
+        CompletableFuture<Category> categoryFuture = CompletableFuture.supplyAsync(
+                () -> categoryService.getCategoryById(product.getCategoryId()),
+                productDetailExecutor
+        );
+        CompletableFuture<List<SkuStockVO>> skuFuture = CompletableFuture.supplyAsync(
+                () -> skuService.getSkuList(id),
+                productDetailExecutor
+        );
+        CompletableFuture<List<ProductImage>> imageFuture = CompletableFuture.supplyAsync(
+                () -> productImageService.getProductImages(id),
+                productDetailExecutor
+        );
+
+        // 等待四项查询都完成后，再组装为前端需要的详情对象
+        CompletableFuture.allOf(
+                brandFuture,
+                categoryFuture,
+                skuFuture,
+                imageFuture
+        ).join();
 
         ProductDetailVO detailVO = new ProductDetailVO();
         detailVO.setProduct(product);
-        detailVO.setBrand(brand);
-        detailVO.setCategory(category);
-        detailVO.setImages(images == null ? Collections.emptyList() : images);
-        detailVO.setSkuList(skuList == null ? Collections.emptyList() : skuList);
-        detailVO.setSelectedSku(selectDefaultSku(detailVO.getSkuList()));
+        detailVO.setBrand(brandFuture.join());
+        detailVO.setCategory(categoryFuture.join());
+        detailVO.setSkuList(skuFuture.join());
+        detailVO.setImageList(imageFuture.join());
+        cacheService.set(id, detailVO);
+
         return detailVO;
     }
 
@@ -115,6 +131,7 @@ public class ProductServiceImpl implements ProductService {
         product.setMinPrice(request.getMinPrice());
         product.setStatus(request.getStatus() == null ? 1 : request.getStatus());
         productMapper.insert(product);
+        productExistsBitmapService.markExists(product.getId());
         return product;
     }
 
@@ -157,7 +174,6 @@ public class ProductServiceImpl implements ProductService {
             product.setStatus(request.getStatus());
         }
         productMapper.updateById(product);
-        productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(id);
 
         return product;
     }
@@ -174,25 +190,6 @@ public class ProductServiceImpl implements ProductService {
             return false;
         }
         product.setStatus(status);
-        boolean updated = productMapper.updateById(product) > 0;
-        if (updated) {
-            productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(id);
-        }
-        return updated;
+        return productMapper.updateById(product) > 0;
     }
-
-    private SkuStockVO selectDefaultSku(List<SkuStockVO> skuList) {
-        if (skuList == null || skuList.isEmpty()) {
-            return null;
-        }
-
-        for (SkuStockVO skuStockVO : skuList) {
-            if (skuStockVO.getSku() != null
-                    && Integer.valueOf(1).equals(skuStockVO.getSku().getStatus())) {
-                return skuStockVO;
-            }
-        }
-        return skuList.get(0);
-    }
-
 }

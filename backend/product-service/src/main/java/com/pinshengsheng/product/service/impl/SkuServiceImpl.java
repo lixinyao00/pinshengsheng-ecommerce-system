@@ -1,7 +1,6 @@
 package com.pinshengsheng.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.pinshengsheng.product.common.ProductDetailCacheService;
 import com.pinshengsheng.product.dto.SkuSaveRequest;
 import com.pinshengsheng.product.entity.Product;
 import com.pinshengsheng.product.entity.Sku;
@@ -24,17 +23,14 @@ public class SkuServiceImpl implements SkuService {
     private final ProductMapper productMapper;
     private final SkuMapper skuMapper;
     private final SkuStockMapper skuStockMapper;
-    private final ProductDetailCacheService productDetailCacheService;
 
     public SkuServiceImpl(
             ProductMapper productMapper,
             SkuMapper skuMapper,
-            SkuStockMapper skuStockMapper,
-            ProductDetailCacheService productDetailCacheService) {
+            SkuStockMapper skuStockMapper) {
         this.productMapper = productMapper;
         this.skuMapper = skuMapper;
         this.skuStockMapper = skuStockMapper;
-        this.productDetailCacheService = productDetailCacheService;
     }
 
     @Override
@@ -72,7 +68,6 @@ public class SkuServiceImpl implements SkuService {
                 ? 0 : request.getAvailableStock());
         stock.setLockedStock(0);
         skuStockMapper.insert(stock);
-        productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(request.getProductId());
 
         return buildSkuStockVO(sku);
     }
@@ -96,7 +91,6 @@ public class SkuServiceImpl implements SkuService {
         if (request.getAvailableStock() != null) {
             updateAvailableStock(id, request.getAvailableStock());
         }
-        productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(request.getProductId());
         return buildSkuStockVO(sku);
     }
 
@@ -108,11 +102,7 @@ public class SkuServiceImpl implements SkuService {
             return false;
         }
         sku.setStatus(status);
-        boolean updated = skuMapper.updateById(sku) > 0;
-        if (updated) {
-            productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(sku.getProductId());
-        }
-        return updated;
+        return skuMapper.updateById(sku) > 0;
     }
 
     @Override
@@ -130,19 +120,11 @@ public class SkuServiceImpl implements SkuService {
             stock.setSkuId(skuId);
             stock.setAvailableStock(availableStock);
             stock.setLockedStock(0);
-            boolean inserted = skuStockMapper.insert(stock) > 0;
-            if (inserted) {
-                productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(sku.getProductId());
-            }
-            return inserted;
+            return skuStockMapper.insert(stock) > 0;
         }
 
         stock.setAvailableStock(availableStock);
-        boolean updated = skuStockMapper.updateById(stock) > 0;
-        if (updated) {
-            productDetailCacheService.deleteProductDetailCacheWithDoubleDelete(sku.getProductId());
-        }
-        return updated;
+        return skuStockMapper.updateById(stock) > 0;
     }
 
     private boolean skuCodeExists(String skuCode, Long excludeId) {

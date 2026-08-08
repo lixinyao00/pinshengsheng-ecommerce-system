@@ -9,8 +9,6 @@ import java.util.List;
 public interface CategoryService {
     List<Category> getEnabledCategories();
 
-    Category getCategoryById(Long id);
-
     List<CategoryTreeVO> getCategoryTree();
 
     List<Category> getAllCategories();
@@ -20,4 +18,6 @@ public interface CategoryService {
     Category updateCategory(Long id, CategorySaveRequest request);
 
     boolean updateCategoryStatus(Long id, Integer status);
+
+    Category getCategoryById(Long id);
 }

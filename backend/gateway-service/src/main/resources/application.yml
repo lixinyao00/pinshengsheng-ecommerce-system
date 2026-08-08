@@ -19,6 +19,11 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/api/cart/**
+        # 库存相关请求转发到商品服务
+        - id: product-stock-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/stock/**
         # 将认证相关请求转发到 auth-service
         - id: auth-service
           uri: lb://auth-service

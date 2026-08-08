@@ -7,15 +7,8 @@ import com.pinshengsheng.product.entity.ProductImage;
 
 import java.util.List;
 
-// 商品详情聚合对象，前端一次拿到商品、品牌、分类、图片和 SKU 信息
+// 汇总商品详情所需的数据
 public class ProductDetailVO {
-
-    private Product product;
-    private Brand brand;
-    private Category category;
-    private List<ProductImage> images;
-    private List<SkuStockVO> skuList;
-    private SkuStockVO selectedSku;
 
     public Product getProduct() {
         return product;
@@ -41,14 +34,6 @@ public class ProductDetailVO {
         this.category = category;
     }
 
-    public List<ProductImage> getImages() {
-        return images;
-    }
-
-    public void setImages(List<ProductImage> images) {
-        this.images = images;
-    }
-
     public List<SkuStockVO> getSkuList() {
         return skuList;
     }
@@ -57,11 +42,17 @@ public class ProductDetailVO {
         this.skuList = skuList;
     }
 
-    public SkuStockVO getSelectedSku() {
-        return selectedSku;
+    public List<ProductImage> getImageList() {
+        return imageList;
     }
 
-    public void setSelectedSku(SkuStockVO selectedSku) {
-        this.selectedSku = selectedSku;
+    public void setImageList(List<ProductImage> imageList) {
+        this.imageList = imageList;
     }
+
+    private Product product;
+    private Brand brand;
+    private Category category;
+    private List<SkuStockVO> skuList;
+    private List<ProductImage> imageList;
 }

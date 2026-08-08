@@ -35,11 +35,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryMapper.selectList(queryWrapper);
     }
-
-    @Override
-    public Category getCategoryById(Long id) {
-        return categoryMapper.selectById(id);
-    }
     // 将扁平分类列表组装为树形结构
     @Override
     public List<CategoryTreeVO> getCategoryTree() {
@@ -136,6 +131,15 @@ public class CategoryServiceImpl implements CategoryService {
         }
         category.setStatus(status);
         return categoryMapper.updateById(category) > 0;
+    }
+
+    @Override
+    public Category getCategoryById(Long id) {
+        Category category = categoryMapper.selectById(id);
+        if (category == null || !Integer.valueOf(1).equals(category.getStatus())) {
+            return null;
+        }
+        return category;
     }
 
     // 根据父分类自动计算当前分类层级

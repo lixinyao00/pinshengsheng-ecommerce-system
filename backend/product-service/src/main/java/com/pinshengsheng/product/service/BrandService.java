@@ -8,8 +8,6 @@ import java.util.List;
 public interface BrandService {
     List<Brand> getEnabledBrands();
 
-    Brand getBrandById(Long id);
-
     List<Brand> getAllBrands();
 
     Brand createBrand(BrandSaveRequest request);
@@ -17,4 +15,5 @@ public interface BrandService {
     Brand updateBrand(Long id, BrandSaveRequest request);
 
     boolean updateBrandStatus(Long id, Integer status);
+    Brand getBrandById(Long id);
 }
