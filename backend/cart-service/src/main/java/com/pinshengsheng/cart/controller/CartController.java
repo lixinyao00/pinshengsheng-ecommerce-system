@@ -107,6 +107,17 @@ public class CartController {
         return ApiResponse.success(null);
     }
 
+    @DeleteMapping
+    public ApiResponse<Void> clearCart(
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getUserId(authorization);
+        if (userId == null) {
+            return ApiResponse.fail(401, "登录状态已失效");
+        }
+        cartService.clearCart(userId);
+        return ApiResponse.success(null);
+    }
+
     private Long getUserId(String authorization) {
         if ("Bearer temp-token-user".equals(authorization)) {
             return 1L;

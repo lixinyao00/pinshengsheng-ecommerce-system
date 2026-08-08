@@ -12,4 +12,5 @@ public interface CartService {
     CartItemVO updateSelected(Long userId, Long cartItemId, Boolean selected);
     void updateAllSelected(Long userId, Boolean selected);
     boolean deleteItem(Long userId, Long cartItemId);
+    void clearCart(Long userId);
 }
