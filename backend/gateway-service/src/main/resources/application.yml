@@ -7,7 +7,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 127.0.0.1:18848
         ip: 127.0.0.1
     gateway:
       routes:
@@ -19,6 +19,11 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/api/cart/**
+        # 订单请求转发到订单服务
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order/**
         # 库存相关请求转发到商品服务
         - id: product-stock-service
           uri: lb://product-service

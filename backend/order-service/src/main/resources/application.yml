@@ -1,0 +1,32 @@
+server:
+  port: 8084
+
+spring:
+  # 开发环境读取仓库外的本地密码
+  config:
+    import: optional:file:../../infra/.env[.properties]
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:18848
+        ip: 127.0.0.1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true

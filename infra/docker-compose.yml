@@ -42,10 +42,16 @@ services:
       MODE: standalone
       PREFER_HOST_MODE: hostname
       NACOS_AUTH_ENABLE: "false"
+      # 本地开发降低 Nacos 内存占用，避免 Docker 因内存不足将容器杀掉
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+      JVM_XMN: 256m
       TZ: Asia/Shanghai
     ports:
       - "8848:8848"
-      - "9848:9848"
+      # Windows 已保留 9848，使用未被占用的主机端口映射 Nacos gRPC
+      - "18848:8848"
+      - "19848:9848"
 
   rabbitmq:
     image: rabbitmq:3.13-management

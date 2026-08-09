@@ -29,6 +29,9 @@
         <module>auth-service</module>
         <module>product-service</module>
         <module>cart-service</module>
+
+        <!-- 订单服务模块 -->
+        <module>order-service</module>
     </modules>
 
     <dependencyManagement>
