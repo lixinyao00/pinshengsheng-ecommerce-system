@@ -33,6 +33,10 @@ const menus = computed(() => {
     {
       index: '/admin/skus',
       title: 'SKU 与库存'
+    },
+    {
+      index: '/admin/orders',
+      title: '订单管理'
     }
   ]
 })

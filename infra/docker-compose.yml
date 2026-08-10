@@ -24,7 +24,8 @@ services:
     container_name: pinshengsheng-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      # Windows 本机 6379 无法绑定，宿主机使用 16379，容器内部仍使用 Redis 默认端口
+      - "16379:6379"
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes

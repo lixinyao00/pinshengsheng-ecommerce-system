@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: auth-service
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      timeout: 3s
   cloud:
     nacos:
       discovery:

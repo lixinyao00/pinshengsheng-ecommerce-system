@@ -44,4 +44,18 @@ public class StockController {
                 ? ApiResponse.success(null)
                 : ApiResponse.fail(409, "库存释放失败");
     }
+
+    @PostMapping("/sku/{skuId}/confirm")
+    public ApiResponse<Void> confirmStock(
+            @PathVariable Long skuId,
+            @Valid @RequestBody StockOperateRequest request) {
+        boolean success = stockService.confirmStock(
+                skuId,
+                request.getQuantity()
+        );
+
+        return success
+                ? ApiResponse.success(null)
+                : ApiResponse.fail(409, "库存结算失败");
+    }
 }

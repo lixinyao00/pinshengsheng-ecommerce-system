@@ -6,6 +6,7 @@ import BrandView from "../views/BrandView.vue";
 import CategoryView from "../views/CategoryView.vue";
 import ProductView from "../views/ProductView.vue";
 import SkuView from '../views/SkuView.vue'
+import OrderView from '../views/OrderView.vue'
 import MallLoginView from '../views/MallLoginView.vue'
 import MallHomeView from "../views/MallHomeView.vue";
 import MallProductDetailView from "../views/MallProductDetailView.vue";
@@ -96,6 +97,11 @@ const routes = [
         path: 'skus',
         name: 'sku',
         component: SkuView
+      },
+      {
+        path: 'orders',
+        name: 'order',
+        component: OrderView
       }
     ]
   }

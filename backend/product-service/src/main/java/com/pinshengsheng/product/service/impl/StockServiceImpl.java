@@ -131,4 +131,42 @@ public class StockServiceImpl implements StockService {
             }
         }
     }
+
+    @Override
+    @Transactional
+    public boolean confirmStock(Long skuId, Integer quantity) {
+        if (skuId == null || quantity == null || quantity <= 0) {
+            return false;
+        }
+
+        RLock lock = redissonClient.getLock(
+                "lock:stock:sku:" + skuId
+        );
+
+        boolean locked = false;
+        try {
+            locked = lock.tryLock(3, TimeUnit.SECONDS);
+            if (!locked) {
+                return false;
+            }
+
+            SkuStock stock = getStock(skuId);
+            int lockedStock = stock == null || stock.getLockedStock() == null
+                    ? 0 : stock.getLockedStock();
+            if (stock == null || lockedStock < quantity) {
+                return false;
+            }
+
+            // 支付成功后，锁定库存转成已售库存，可用库存不再恢复
+            stock.setLockedStock(lockedStock - quantity);
+            return skuStockMapper.updateById(stock) > 0;
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            return false;
+        } finally {
+            if (locked && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
 }

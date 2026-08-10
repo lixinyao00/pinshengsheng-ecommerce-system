@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS pss_order (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_no VARCHAR(32) NOT NULL,
+    user_id BIGINT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    pay_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status TINYINT NOT NULL DEFAULT 0 COMMENT '0待支付 1已支付 2已发货 3已完成 4已取消',
+    stock_locked TINYINT NOT NULL DEFAULT 0 COMMENT '是否已锁定库存',
+    receiver_name VARCHAR(50) NOT NULL,
+    receiver_phone VARCHAR(20) NOT NULL,
+    province VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    district VARCHAR(50) NOT NULL,
+    detail_address VARCHAR(255) NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    pay_time DATETIME NULL,
+    delivery_time DATETIME NULL,
+    finish_time DATETIME NULL,
+    cancel_time DATETIME NULL,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_order_no (order_no),
+    KEY idx_order_user_id (user_id),
+    KEY idx_order_status (status)
+);
+
+CREATE TABLE IF NOT EXISTS pss_order_item (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    sku_id BIGINT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    sku_code VARCHAR(64) NOT NULL,
+    sku_name VARCHAR(200) NOT NULL,
+    main_image VARCHAR(500) NULL,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_order_item_order_id (order_id),
+    KEY idx_order_item_sku_id (sku_id)
+);

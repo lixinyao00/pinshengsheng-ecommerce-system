@@ -1,16 +1,22 @@
 server:
   port: 8084
 
+order:
+  timeout-minutes: 30
+  timeout-check-delay-ms: 60000
+
 spring:
   # 开发环境读取仓库外的本地密码
   config:
     import: optional:file:../../infra/.env[.properties]
   application:
     name: order-service
+  product-service:
+    url: http://127.0.0.1:8081
   datasource:
     url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: ${MYSQL_ROOT_PASSWORD}
+    password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:

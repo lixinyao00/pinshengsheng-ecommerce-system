@@ -29,6 +29,11 @@ spring:
           uri: lb://product-service
           predicates:
             - Path=/api/stock/**
+        # 后台订单请求转发到订单服务
+        - id: order-admin-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/admin/order/**
         # 将认证相关请求转发到 auth-service
         - id: auth-service
           uri: lb://auth-service

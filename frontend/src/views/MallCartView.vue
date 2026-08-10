@@ -10,6 +10,7 @@ import {
   updateCartQuantity,
   updateCartSelected
 } from '../api/cart'
+import { createOrder, getAddressList } from '../api/order'
 import { useUserStore } from '../stores/user'
 
 const router = useRouter()
@@ -22,6 +23,11 @@ const cartSummary = ref({
   selectedCount: 0,
   selectedTotalAmount: 0
 })
+const checkoutVisible = ref(false)
+const checkoutLoading = ref(false)
+const submittingOrder = ref(false)
+const addressList = ref([])
+const selectedAddressId = ref(null)
 
 const allSelected = computed(() => {
   const items = cartSummary.value.items || []
@@ -100,6 +106,77 @@ async function updateItem(action, errorMessage) {
   }
 }
 
+// 打开结算弹窗，并优先选中默认收货地址
+async function openCheckout() {
+  if (cartSummary.value.selectedCount < 1) {
+    ElMessage.warning('请先选择要购买的商品')
+    return
+  }
+
+  checkoutVisible.value = true
+  checkoutLoading.value = true
+
+  try {
+    const result = await getAddressList()
+    if (result.code !== 200) {
+      ElMessage.error(result.message)
+      checkoutVisible.value = false
+      return
+    }
+
+    addressList.value = result.data || []
+    const defaultAddress = addressList.value.find((item) => item.isDefault === 1)
+    selectedAddressId.value = defaultAddress?.id || addressList.value[0]?.id || null
+  } catch {
+    ElMessage.error('收货地址加载失败，请检查订单服务')
+    checkoutVisible.value = false
+  } finally {
+    checkoutLoading.value = false
+  }
+}
+
+// 把购物车选中项转换成后端创建订单需要的格式
+async function submitOrder() {
+  if (!selectedAddressId.value) {
+    ElMessage.warning('请先选择收货地址')
+    return
+  }
+
+  submittingOrder.value = true
+  try {
+    const selectedItems = cartSummary.value.items.filter((item) => item.selected)
+    const result = await createOrder({
+      addressId: selectedAddressId.value,
+      items: selectedItems.map((item) => ({
+          skuId: item.skuId,
+          quantity: item.quantity
+        }))
+    })
+
+    if (result.code !== 200) {
+      ElMessage.error(result.message)
+      return
+    }
+
+    checkoutVisible.value = false
+    const deleteResults = await Promise.all(
+      selectedItems.map((item) => deleteCartItem(item.id))
+    )
+    await loadCart()
+
+    if (deleteResults.some((item) => item.code !== 200)) {
+      ElMessage.warning('订单已创建，但部分购物车商品删除失败，请手动清理')
+      return
+    }
+
+    ElMessage.success(`订单创建成功，订单号：${result.data.order.orderNo}`)
+  } catch {
+    ElMessage.error('订单创建失败，请稍后重试')
+  } finally {
+    submittingOrder.value = false
+  }
+}
+
 onMounted(loadCart)
 </script>
 
@@ -170,7 +247,13 @@ onMounted(loadCart)
           <div>
             <span>合计：</span>
             <strong>¥{{ formatPrice(cartSummary.selectedTotalAmount) }}</strong>
-            <el-button type="primary" disabled>去结算</el-button>
+            <el-button
+              type="primary"
+              :disabled="cartSummary.selectedCount < 1 || updating"
+              @click="openCheckout"
+            >
+              去结算
+            </el-button>
           </div>
         </footer>
       </template>
@@ -179,6 +262,47 @@ onMounted(loadCart)
         <el-button type="primary" @click="goHome">去挑选商品</el-button>
       </el-empty>
     </el-card>
+
+    <el-dialog v-model="checkoutVisible" title="确认订单" width="620px">
+      <el-skeleton v-if="checkoutLoading" :rows="4" animated />
+      <template v-else>
+        <div v-if="addressList.length > 0" class="address-section">
+          <h3>选择收货地址</h3>
+          <el-radio-group v-model="selectedAddressId" class="address-list">
+            <el-radio
+              v-for="address in addressList"
+              :key="address.id"
+              :label="address.id"
+              border
+              class="address-option"
+            >
+              <strong>{{ address.receiverName }} {{ address.receiverPhone }}</strong>
+              <span>
+                {{ address.province }}{{ address.city }}{{ address.district }}{{ address.detailAddress }}
+              </span>
+            </el-radio>
+          </el-radio-group>
+        </div>
+        <el-empty v-else description="暂无收货地址，请先添加地址" />
+
+        <div class="checkout-total">
+          共 {{ cartSummary.selectedCount }} 件商品，合计
+          <strong>¥{{ formatPrice(cartSummary.selectedTotalAmount) }}</strong>
+        </div>
+      </template>
+
+      <template #footer>
+        <el-button @click="checkoutVisible = false">取消</el-button>
+        <el-button
+          type="primary"
+          :loading="submittingOrder"
+          :disabled="!selectedAddressId || checkoutLoading"
+          @click="submitOrder"
+        >
+          提交订单
+        </el-button>
+      </template>
+    </el-dialog>
   </main>
 </template>
 
@@ -298,6 +422,41 @@ onMounted(loadCart)
 
 .cart-summary strong {
   font-size: 24px;
+}
+
+.address-section h3 {
+  margin: 0 0 14px;
+}
+
+.address-list {
+  display: grid;
+  gap: 12px;
+}
+
+.address-option {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 12px;
+}
+
+.address-option :deep(.el-radio__label) {
+  display: grid;
+  gap: 6px;
+  white-space: normal;
+}
+
+.checkout-total {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.checkout-total strong {
+  margin-left: 8px;
+  color: #e64545;
+  font-size: 20px;
 }
 
 @media (max-width: 760px) {

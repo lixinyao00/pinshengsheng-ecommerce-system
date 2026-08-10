@@ -23,12 +23,12 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: root
-    password: ${MYSQL_ROOT_PASSWORD}
+    password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: 127.0.0.1
-      port: 6379
+      port: 16379
       timeout: 3s
   cloud:
     nacos:
