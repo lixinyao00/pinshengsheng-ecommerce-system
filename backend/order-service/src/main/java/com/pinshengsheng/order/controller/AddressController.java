@@ -1,6 +1,7 @@
 package com.pinshengsheng.order.controller;
 
 import com.pinshengsheng.common.api.ApiResponse;
+import com.pinshengsheng.common.auth.TokenUtils;
 import com.pinshengsheng.order.dto.AddressSaveRequest;
 import com.pinshengsheng.order.entity.Address;
 import com.pinshengsheng.order.service.AddressService;
@@ -90,9 +91,6 @@ public class AddressController {
     }
 
     private Long getUserId(String authorization) {
-        if ("Bearer temp-token-user".equals(authorization)) {
-            return 1L;
-        }
-        return null;
+        return TokenUtils.getUserId(authorization);
     }
 }

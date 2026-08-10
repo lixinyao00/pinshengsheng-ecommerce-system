@@ -1,10 +1,18 @@
 package com.pinshengsheng.auth.controller;
 
 import com.pinshengsheng.auth.dto.LoginRequest;
+import com.pinshengsheng.auth.dto.RegisterRequest;
 import com.pinshengsheng.auth.log.OperationLog;
+import com.pinshengsheng.auth.model.UserAccount;
+import com.pinshengsheng.auth.service.UserService;
+import com.pinshengsheng.common.auth.TokenUtils;
 import com.pinshengsheng.common.api.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,82 +20,148 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    // 记录用户登录操作
+
+    private final UserService userService;
+
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
+
     @OperationLog("用户登录")
     @PostMapping("/login")
     public ApiResponse<Map<String, String>> login(
             @RequestBody LoginRequest loginRequest) {
 
-        // 判断当前登录的是管理员还是普通用户
-        boolean isAdmin = "admin".equals(loginRequest.getUsername());
-        boolean isNormalUser = "user".equals(loginRequest.getUsername());
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
 
-        // 密码错误，或用户名不属于两种测试账号时，登录失败
-        if (!"123456".equals(loginRequest.getPassword())
-                || (!isAdmin && !isNormalUser)) {
+        if (username == null || username.isBlank() || password == null) {
             return ApiResponse.fail(401, "用户名或密码错误");
         }
 
-        // 根据用户身份返回对应的临时 Token 和角色
-        String token = isAdmin ? "temp-token-admin" : "temp-token-user";
-        String role = isAdmin ? "ADMIN" : "USER";
+        // 保留项目演示用的管理员账号
+        if ("admin".equals(username)) {
+            if (!"123456".equals(password)) {
+                return ApiResponse.fail(401, "用户名或密码错误");
+            }
+            return ApiResponse.success(buildLoginData(
+                    "admin", "拼省省管理员", "ADMIN", "temp-token-admin"));
+        }
 
-        // 返回登录成功后的身份信息
+        // 保留原来的普通用户演示账号，避免影响已有测试数据
+        if ("user".equals(username) && "123456".equals(password)) {
+            return ApiResponse.success(buildLoginData(
+                    "user", "拼省省普通用户", "USER", "temp-token-user"));
+        }
+
+        UserAccount account = userService.findByUsername(username);
+        if (account == null
+                || !Integer.valueOf(1).equals(account.getStatus())
+                || !userService.matchesPassword(password, account.getPasswordHash())) {
+            return ApiResponse.fail(401, "用户名或密码错误");
+        }
+
+        String token = TokenUtils.buildUserToken(account.getId());
+        return ApiResponse.success(buildLoginData(
+                account.getUsername(), account.getNickname(), account.getRole(), token));
+    }
+
+    @OperationLog("用户注册")
+    @PostMapping("/register")
+    public ApiResponse<Map<String, String>> register(@RequestBody RegisterRequest request) {
+        if (request == null
+                || request.getUsername() == null
+                || request.getUsername().isBlank()
+                || request.getPassword() == null
+                || request.getPassword().length() < 6) {
+            return ApiResponse.fail(400, "用户名不能为空，密码至少 6 位");
+        }
+
+        if ("admin".equalsIgnoreCase(request.getUsername())
+                || "user".equalsIgnoreCase(request.getUsername())) {
+            return ApiResponse.fail(409, "该用户名不能注册");
+        }
+
+        if (request.getNickname() == null || request.getNickname().isBlank()) {
+            request.setNickname(request.getUsername());
+        }
+
+        UserAccount account = userService.register(request);
+        if (account == null) {
+            return ApiResponse.fail(409, "用户名已存在");
+        }
+
         Map<String, String> data = new HashMap<>();
-        data.put("token", token);
-        data.put("username", loginRequest.getUsername());
-        data.put("role", role);
-
+        data.put("username", account.getUsername());
+        data.put("nickname", account.getNickname());
         return ApiResponse.success(data);
     }
+
     @GetMapping("/profile")
     public ApiResponse<Map<String, String>> profile(
-            @RequestHeader(value = "Authorization", required = false) String authorization){
-        // 分别判断当前 Token 是否属于管理员或普通用户
-        boolean isAdmin = "Bearer temp-token-admin".equals(authorization);
-        boolean isNormalUser = "Bearer temp-token-user".equals(authorization);
-        if(!isAdmin && !isNormalUser){
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+
+        if (TokenUtils.isAdminToken(authorization)) {
+            return ApiResponse.success(buildProfileData(
+                    "admin", "拼省省管理员", "ADMIN"));
+        }
+
+        if ("Bearer temp-token-user".equals(authorization)) {
+            return ApiResponse.success(buildProfileData(
+                    "user", "拼省省普通用户", "USER"));
+        }
+
+        Long userId = TokenUtils.getUserId(authorization);
+        UserAccount account = userId == null ? null : userService.findById(userId);
+        if (account == null || !Integer.valueOf(1).equals(account.getStatus())) {
             return ApiResponse.fail(401, "登陆状态已失效");
         }
-        // 根据 Token 区分当前用户身份
-        String username = isAdmin ? "admin" : "user";
-        String nickname = isAdmin ? "拼省省管理员" : "拼省省普通用户";
-        String role = isAdmin ? "ADMIN" : "USER";
 
-        // 返回当前登录用户的信息和角色
-        Map<String, String> data = new HashMap<>();
-        data.put("username", username);
-        data.put("nickname", nickname);
-        data.put("role", role);
-
-        return ApiResponse.success(data);
-
+        return ApiResponse.success(buildProfileData(
+                account.getUsername(), account.getNickname(), account.getRole()));
     }
-    // 模拟只有管理员才能访问的后台概览接口
+
     @OperationLog("查看管理员后台")
     @GetMapping("/admin/dashboard")
     public ApiResponse<Map<String, String>> adminDashboard(
             @RequestHeader(value = "Authorization", required = false) String authorization) {
 
-        // 判断当前请求携带的是哪种 Token
-        boolean isAdmin = "Bearer temp-token-admin".equals(authorization);
-        boolean isNormalUser = "Bearer temp-token-user".equals(authorization);
-
-        // 没有有效 Token，说明用户未登录
-        if (!isAdmin && !isNormalUser) {
+        if (!TokenUtils.isAdminToken(authorization)
+                && !TokenUtils.isUserToken(authorization)) {
             return ApiResponse.fail(401, "登录状态已失效");
         }
 
-        // 已登录但不是管理员，说明权限不足
-        if (!isAdmin) {
+        if (!TokenUtils.isAdminToken(authorization)) {
             return ApiResponse.fail(403, "没有管理员权限");
         }
 
-        // 管理员可以看到后台概览数据
         Map<String, String> data = new HashMap<>();
         data.put("message", "欢迎进入拼省省管理后台");
         data.put("role", "ADMIN");
-
         return ApiResponse.success(data);
+    }
+
+    private Map<String, String> buildLoginData(
+            String username,
+            String nickname,
+            String role,
+            String token) {
+        Map<String, String> data = new HashMap<>();
+        data.put("token", token);
+        data.put("username", username);
+        data.put("nickname", nickname);
+        data.put("role", role);
+        return data;
+    }
+
+    private Map<String, String> buildProfileData(
+            String username,
+            String nickname,
+            String role) {
+        Map<String, String> data = new HashMap<>();
+        data.put("username", username);
+        data.put("nickname", nickname);
+        data.put("role", role);
+        return data;
     }
 }

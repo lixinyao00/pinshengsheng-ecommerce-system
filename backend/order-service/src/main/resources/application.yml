@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 8384
 
 order:
   timeout-minutes: 30
@@ -12,12 +12,17 @@ spring:
   application:
     name: order-service
   product-service:
-    url: http://127.0.0.1:8081
+    url: http://127.0.0.1:8381
   datasource:
     url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: ${PSS_RABBITMQ_USERNAME:pinshengsheng}
+    password: ${PSS_RABBITMQ_PASSWORD:pinshengsheng_rabbit_change_me}
   sql:
     init:
       mode: always

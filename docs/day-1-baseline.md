@@ -6,7 +6,7 @@
 - 建立第一个 `product-service` 商品服务。
 - 增加 `GET /api/product/health` 健康接口。
 - 建立 Vue 3 + Vite 前端骨架，默认端口 5173。
-- 配置前端 `/api` 到商品服务 `8081` 的开发代理。
+- 配置前端 `/api` 到 Gateway `8380` 的开发代理。
 - 记录微服务职责、端口和核心业务链路。
 
 ## 当前环境事实
@@ -20,6 +20,6 @@
 ## 第 1 天验收标准
 
 1. `mvn test` 通过。
-2. 商品服务启动后，`GET http://localhost:8081/api/product/health` 返回 `status=UP`。
+2. 商品服务启动后，`GET http://localhost:8381/api/product/health` 返回 `status=UP`。
 3. 前端依赖安装后，`npm run build` 通过。
 4. 前后端代码和文档形成一次独立 Git 提交。

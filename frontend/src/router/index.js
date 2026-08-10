@@ -9,9 +9,12 @@ import SkuView from '../views/SkuView.vue'
 import OrderView from '../views/OrderView.vue'
 import MallLoginView from '../views/MallLoginView.vue'
 import MallHomeView from "../views/MallHomeView.vue";
+import MallProductListView from '../views/MallProductListView.vue'
 import MallProductDetailView from "../views/MallProductDetailView.vue";
 import MallSignView from '../views/MallSignView.vue'
 import MallCartView from '../views/MallCartView.vue'
+import MallOrderView from '../views/MallOrderView.vue'
+import MallAddressView from '../views/MallAddressView.vue'
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
@@ -48,6 +51,15 @@ const routes = [
     }
   },
   {
+    path: '/mall/products',
+    name: 'mall-products',
+    component: MallProductListView,
+    meta: {
+      requiresAuth: true,
+      userOnly: true
+    }
+  },
+  {
     path: '/mall/sign',
     name: 'mall-sign',
     component: MallSignView,
@@ -60,6 +72,24 @@ const routes = [
     path: '/mall/cart',
     name: 'mall-cart',
     component: MallCartView,
+    meta: {
+      requiresAuth: true,
+      userOnly: true
+    }
+  },
+  {
+    path: '/mall/orders',
+    name: 'mall-orders',
+    component: MallOrderView,
+    meta: {
+      requiresAuth: true,
+      userOnly: true
+    }
+  },
+  {
+    path: '/mall/addresses',
+    name: 'mall-addresses',
+    component: MallAddressView,
     meta: {
       requiresAuth: true,
       userOnly: true

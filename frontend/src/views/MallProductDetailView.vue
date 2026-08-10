@@ -10,6 +10,7 @@ import { getMallProductDetail } from '../api/mall'
 import { addCartItem } from '../api/cart'
 // 引入 Element Plus 提示消息
 import { ElMessage } from 'element-plus'
+import MallHeader from '../components/MallHeader.vue'
 
 // 获取当前路由对象
 const route = useRoute()
@@ -137,14 +138,7 @@ onMounted(loadProductDetail)
 
 <template>
   <main class="product-detail-page">
-    <!-- 商品详情页顶部导航 -->
-    <header class="detail-header">
-      <strong>拼省省</strong>
-
-      <el-button link @click="goHome">
-        返回首页
-      </el-button>
-    </header>
+    <MallHeader />
 
     <p v-if="loading">商品详情加载中...</p>
 
@@ -279,31 +273,18 @@ onMounted(loadProductDetail)
 <style scoped>
 .product-detail-page {
   min-height: 100vh;
+  max-width: 1200px;
+  box-sizing: border-box;
+  margin: 0 auto;
   padding: 32px;
   background: #f5f7fa;
-}
-
-.detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-  margin: 0 auto 20px;
-  padding: 18px 24px;
-  background: #ffffff;
-  border-radius: 8px;
-}
-
-.detail-header strong {
-  color: #f56c6c;
-  font-size: 22px;
 }
 
 .detail-content {
   display: grid;
   grid-template-columns: 360px 1fr;
   gap: 32px;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px;
   background: #ffffff;
@@ -358,7 +339,7 @@ onMounted(loadProductDetail)
 }
 .sku-section,
 .image-section {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 24px auto 0;
   padding: 24px 32px;
   background: #ffffff;

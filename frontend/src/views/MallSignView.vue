@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getSignCount, getSignStatus, signIn } from '../api/sign'
 import { useUserStore } from '../stores/user'
+import MallHeader from '../components/MallHeader.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -87,16 +88,7 @@ onMounted(loadSignData)
 
 <template>
   <main class="sign-page">
-    <header class="sign-header">
-      <div>
-        <div class="mall-logo">拼省省</div>
-        <p>每日签到</p>
-      </div>
-      <div class="user-actions">
-        <span>你好，{{ userStore.username }}</span>
-        <el-button link type="primary" @click="backToHome">返回商城</el-button>
-      </div>
-    </header>
+    <MallHeader />
 
     <el-card v-loading="loading" class="sign-card" shadow="never">
       <section class="sign-summary">
@@ -144,40 +136,15 @@ onMounted(loadSignData)
 <style scoped>
 .sign-page {
   min-height: 100vh;
+  max-width: 1200px;
+  box-sizing: border-box;
+  margin: 0 auto;
   padding: 24px;
   background: #f5f7fa;
 }
 
-.sign-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 960px;
-  margin: 0 auto 20px;
-  padding: 18px 28px;
-  background: #ffffff;
-  border-radius: 8px;
-}
-
-.mall-logo {
-  color: #f56c6c;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.sign-header p {
-  margin: 4px 0 0;
-  color: #909399;
-}
-
-.user-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .sign-card {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -240,7 +207,6 @@ onMounted(loadSignData)
     padding: 12px;
   }
 
-  .sign-header,
   .sign-summary {
     align-items: flex-start;
     flex-direction: column;

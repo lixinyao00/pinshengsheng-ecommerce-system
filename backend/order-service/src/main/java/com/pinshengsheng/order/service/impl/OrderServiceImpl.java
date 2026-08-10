@@ -11,9 +11,11 @@ import com.pinshengsheng.order.mapper.AddressMapper;
 import com.pinshengsheng.order.mapper.OrderItemMapper;
 import com.pinshengsheng.order.mapper.OrderMapper;
 import com.pinshengsheng.order.mapper.ProductSnapshotMapper;
+import com.pinshengsheng.order.messaging.OrderCreatedDomainEvent;
 import com.pinshengsheng.order.service.OrderService;
 import com.pinshengsheng.order.vo.OrderDetailVO;
 import com.pinshengsheng.order.vo.OrderItemSource;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,18 +40,21 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final ProductSnapshotMapper productSnapshotMapper;
     private final StockClient stockClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public OrderServiceImpl(
             AddressMapper addressMapper,
             OrderMapper orderMapper,
             OrderItemMapper orderItemMapper,
             ProductSnapshotMapper productSnapshotMapper,
-            StockClient stockClient) {
+            StockClient stockClient,
+            ApplicationEventPublisher applicationEventPublisher) {
         this.addressMapper = addressMapper;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.productSnapshotMapper = productSnapshotMapper;
         this.stockClient = stockClient;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -119,6 +124,12 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setOrderId(order.getId());
                 orderItemMapper.insert(orderItem);
             }
+            applicationEventPublisher.publishEvent(new OrderCreatedDomainEvent(
+                    order.getId(),
+                    order.getOrderNo(),
+                    order.getUserId(),
+                    orderItems.stream().map(OrderItem::getSkuId).toList()
+            ));
         } catch (RuntimeException exception) {
             releaseLockedItems(lockedItems);
             throw exception;

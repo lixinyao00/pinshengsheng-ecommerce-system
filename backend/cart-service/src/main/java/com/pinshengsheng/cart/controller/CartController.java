@@ -6,6 +6,7 @@ import com.pinshengsheng.cart.dto.CartSelectedUpdateRequest;
 import com.pinshengsheng.cart.service.CartService;
 import com.pinshengsheng.cart.vo.CartItemVO;
 import com.pinshengsheng.cart.vo.CartSummaryVO;
+import com.pinshengsheng.common.auth.TokenUtils;
 import com.pinshengsheng.common.api.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -119,9 +120,6 @@ public class CartController {
     }
 
     private Long getUserId(String authorization) {
-        if ("Bearer temp-token-user".equals(authorization)) {
-            return 1L;
-        }
-        return null;
+        return TokenUtils.getUserId(authorization);
     }
 }

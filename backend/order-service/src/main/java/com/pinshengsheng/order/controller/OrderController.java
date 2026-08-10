@@ -1,6 +1,7 @@
 package com.pinshengsheng.order.controller;
 
 import com.pinshengsheng.common.api.ApiResponse;
+import com.pinshengsheng.common.auth.TokenUtils;
 import com.pinshengsheng.order.dto.OrderCreateRequest;
 import com.pinshengsheng.order.entity.Order;
 import com.pinshengsheng.order.service.OrderService;
@@ -155,13 +156,10 @@ public class OrderController {
     }
 
     private Long getUserId(String authorization) {
-        if ("Bearer temp-token-user".equals(authorization)) {
-            return 1L;
-        }
-        return null;
+        return TokenUtils.getUserId(authorization);
     }
 
     private boolean isAdmin(String authorization) {
-        return "Bearer temp-token-admin".equals(authorization);
+        return TokenUtils.isAdminToken(authorization);
     }
 }

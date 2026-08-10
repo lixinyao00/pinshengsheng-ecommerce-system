@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8381
 
 spring:
   # 开发环境从仓库外的 infra/.env 读取本地密码，不把密码写进 Git

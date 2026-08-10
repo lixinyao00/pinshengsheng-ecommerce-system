@@ -1,9 +1,19 @@
 server:
-  port: 8082
+  port: 8382
 
 spring:
+  config:
+    import: optional:file:../../infra/.env[.properties]
   application:
     name: auth-service
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: 127.0.0.1

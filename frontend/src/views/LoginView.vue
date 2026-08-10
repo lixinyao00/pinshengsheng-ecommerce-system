@@ -61,7 +61,11 @@ async function handleLogin() {
       <p>使用管理员账号登录</p>
 
       <!-- 登录表单 -->
-      <el-form :model="loginForm" @keyup.enter="handleLogin">
+      <el-form
+        :model="loginForm"
+        label-width="68px"
+        @keyup.enter="handleLogin"
+      >
         <el-form-item label="用户名">
           <el-input v-model="loginForm.username" />
         </el-form-item>
@@ -116,6 +120,10 @@ async function handleLogin() {
 }
 
 .login-button {
+  width: 100%;
+}
+
+.login-card :deep(.el-input) {
   width: 100%;
 }
 </style>

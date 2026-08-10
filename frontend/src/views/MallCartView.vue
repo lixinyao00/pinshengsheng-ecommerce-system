@@ -10,8 +10,10 @@ import {
   updateCartQuantity,
   updateCartSelected
 } from '../api/cart'
-import { createOrder, getAddressList } from '../api/order'
+import { getAddressList } from '../api/address'
+import { createOrder } from '../api/order'
 import { useUserStore } from '../stores/user'
+import MallHeader from '../components/MallHeader.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -40,6 +42,16 @@ function formatPrice(price) {
 
 function goHome() {
   router.push('/mall/home')
+}
+
+// 打开当前用户的订单页面
+function goOrders() {
+  router.push('/mall/orders')
+}
+
+// 打开收货地址管理页面
+function goAddresses() {
+  router.push('/mall/addresses')
 }
 
 async function loadCart() {
@@ -182,16 +194,7 @@ onMounted(loadCart)
 
 <template>
   <main class="cart-page">
-    <header class="cart-header">
-      <div>
-        <div class="mall-logo">拼省省</div>
-        <p>购物车</p>
-      </div>
-      <div class="header-actions">
-        <span>你好，{{ userStore.username }}</span>
-        <el-button link type="primary" @click="goHome">继续购物</el-button>
-      </div>
-    </header>
+    <MallHeader />
 
     <el-card v-loading="loading" class="cart-card" shadow="never">
       <template v-if="cartSummary.items.length > 0">
@@ -285,6 +288,10 @@ onMounted(loadCart)
         </div>
         <el-empty v-else description="暂无收货地址，请先添加地址" />
 
+        <div class="address-manage-link">
+          <el-button link type="primary" @click="goAddresses">管理收货地址</el-button>
+        </div>
+
         <div class="checkout-total">
           共 {{ cartSummary.selectedCount }} 件商品，合计
           <strong>¥{{ formatPrice(cartSummary.selectedTotalAmount) }}</strong>
@@ -309,47 +316,23 @@ onMounted(loadCart)
 <style scoped>
 .cart-page {
   min-height: 100vh;
+  max-width: 1200px;
+  box-sizing: border-box;
+  margin: 0 auto;
   padding: 24px;
   background: #f5f7fa;
 }
 
-.cart-header,
 .cart-card {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.cart-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 18px 28px;
-  background: #ffffff;
-  border-radius: 8px;
-}
-
-.mall-logo {
-  color: #f56c6c;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.cart-header p {
-  margin: 4px 0 0;
-  color: #909399;
-}
-
-.header-actions,
 .cart-toolbar,
 .cart-summary,
 .cart-summary div {
   display: flex;
   align-items: center;
-}
-
-.header-actions {
-  gap: 12px;
 }
 
 .cart-toolbar {
@@ -459,15 +442,14 @@ onMounted(loadCart)
   font-size: 20px;
 }
 
+.address-manage-link {
+  margin-top: 12px;
+  text-align: right;
+}
+
 @media (max-width: 760px) {
   .cart-page {
     padding: 12px;
-  }
-
-  .cart-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
   }
 
   .cart-item {

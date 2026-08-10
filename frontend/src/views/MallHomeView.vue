@@ -11,6 +11,7 @@ import {
 } from '../api/mall'
 // 引入用户状态管理
 import { useUserStore } from '../stores/user'
+import MallHeader from '../components/MallHeader.vue'
 // 获取当前登录用户信息
 const userStore = useUserStore()
 // 获取路由对象
@@ -54,6 +55,16 @@ function openSignPage() {
 // 打开购物车页面
 function openCartPage() {
   router.push('/mall/cart')
+}
+
+// 打开当前用户的订单页面
+function openOrderPage() {
+  router.push('/mall/orders')
+}
+
+// 打开收货地址管理页面
+function openAddressPage() {
+  router.push('/mall/addresses')
 }
 // 根据当前选择的分类和品牌计算可见商品
 const visibleProducts = computed(() => {
@@ -113,25 +124,7 @@ onMounted(loadMallHome)
 
 <template>
   <main class="mall-home-page">
-    <!-- 商城顶部导航 -->
-    <header class="mall-header">
-      <div class="mall-logo">拼省省</div>
-      <!-- 商城页面导航 -->
-      <nav class="mall-nav">
-        <span class="active">首页</span>
-        <span>全部商品</span>
-        <span @click="openSignPage">每日签到</span>
-        <span @click="openCartPage">购物车</span>
-      </nav>
-      <span>
-        你好，{{ userStore.username }}
-      <el-button
-          link
-          type="danger"
-          @click="handleLogout"
-      >退出登录</el-button>
-      </span>
-    </header>
+    <MallHeader />
     <!-- 商城欢迎区域 -->
     <section class="mall-banner">
       <p>拼省省精选</p>
@@ -213,37 +206,11 @@ onMounted(loadMallHome)
 <style scoped>
 .mall-home-page {
   min-height: 100vh;
+  max-width: 1200px;
+  box-sizing: border-box;
+  margin: 0 auto;
   padding: 24px;
   background: #f5f7fa;
-}
-.mall-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 28px;
-  background: #ffffff;
-  border-radius: 8px;
-}
-
-.mall-logo {
-  color: #f56c6c;
-  font-size: 24px;
-  font-weight: 700;
-}
-.mall-nav {
-  display: flex;
-  gap: 24px;
-  margin-right: auto;
-  margin-left: 50px;
-}
-
-.mall-nav .active {
-  color: #f56c6c;
-  font-weight: 600;
-}
-
-.mall-nav span {
-  cursor: pointer;
 }
 .mall-banner {
   margin-top: 20px;

@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8383
 
 spring:
   application:
@@ -15,6 +15,11 @@ spring:
       host: 127.0.0.1
       port: 16379
       timeout: 3s
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: ${PSS_RABBITMQ_USERNAME:pinshengsheng}
+    password: ${PSS_RABBITMQ_PASSWORD:pinshengsheng_rabbit_change_me}
 
 management:
   endpoints:
