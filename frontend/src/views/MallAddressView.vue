@@ -337,6 +337,21 @@ onMounted(loadAddresses)
 
   .address-actions {
     align-self: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .address-card :deep(.el-form-item__label) {
+    width: 76px !important;
+  }
+
+  .address-card :deep(.el-form-item__content) {
+    margin-left: 76px !important;
   }
 }
 </style>

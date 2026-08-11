@@ -262,4 +262,26 @@ h1 {
   justify-content: center;
   margin-top: 18px;
 }
+
+@media (max-width: 600px) {
+  .mall-login-page {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .mall-login-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .login-actions {
+    flex-direction: column;
+  }
+
+  .login-actions .el-button {
+    width: 100%;
+    min-height: 40px;
+    margin-left: 0;
+  }
+}
 </style>

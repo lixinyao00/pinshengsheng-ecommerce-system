@@ -425,4 +425,56 @@ onMounted(loadProductDetail)
   gap: 12px;
   margin-top: 24px;
 }
+
+@media (max-width: 760px) {
+  .product-detail-page {
+    padding: 12px;
+  }
+
+  .detail-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 18px;
+  }
+
+  .product-image {
+    min-height: 240px;
+  }
+
+  .product-info h1 {
+    font-size: 24px;
+  }
+
+  .product-meta {
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin: 16px 0;
+  }
+
+  .sku-section,
+  .image-section {
+    padding: 18px;
+  }
+
+  .sku-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .quantity-row,
+  .action-row {
+    flex-wrap: wrap;
+  }
+
+  .action-row .el-button {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .image-list img {
+    width: calc(50% - 8px);
+    height: auto;
+    aspect-ratio: 1;
+  }
+}
 </style>

@@ -301,5 +301,38 @@ onMounted(loadOrders)
     flex-direction: column;
     gap: 12px;
   }
+
+  .order-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .order-toolbar .el-select {
+    width: 100% !important;
+  }
+
+  .order-item-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .order-actions {
+    flex-wrap: wrap;
+  }
+
+  .order-actions .el-button {
+    margin-left: 0;
+  }
+
+  .order-card :deep(.el-descriptions__body),
+  .order-card :deep(.el-descriptions__table) {
+    width: 100%;
+  }
+
+  .order-card :deep(.el-table) {
+    overflow-x: auto;
+  }
 }
 </style>

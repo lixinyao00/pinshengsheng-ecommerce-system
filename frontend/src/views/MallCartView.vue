@@ -473,5 +473,23 @@ onMounted(loadCart)
     flex-direction: column;
     gap: 16px;
   }
+
+  .cart-toolbar {
+    gap: 8px;
+  }
+
+  .cart-summary > div {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .cart-summary strong {
+    font-size: 20px;
+  }
+
+  .cart-summary .el-button {
+    min-width: 96px;
+  }
 }
 </style>

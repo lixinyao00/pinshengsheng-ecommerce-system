@@ -127,9 +127,15 @@ onMounted(loadMallHome)
     <MallHeader />
     <!-- 商城欢迎区域 -->
     <section class="mall-banner">
-      <p>拼省省精选</p>
-      <h1>好商品，拼着买更省</h1>
-      <span>精选品质好物，价格透明，轻松挑选心仪商品。</span>
+      <div class="banner-content">
+        <p class="banner-tag">拼省省精选</p>
+        <h1>好商品，拼着买更省</h1>
+        <span>精选品质好物，价格透明，轻松挑选心仪商品。</span>
+        <el-button type="danger" round @click="router.push('/mall/products')">去逛逛</el-button>
+      </div>
+      <div class="banner-decoration decoration-one"></div>
+      <div class="banner-decoration decoration-two"></div>
+      <div class="banner-badge">精选好物<br><strong>低价优选</strong></div>
     </section>
     <!-- 商品筛选区域 -->
     <section class="filter-section">
@@ -190,9 +196,15 @@ onMounted(loadMallHome)
           class="product-card"
           shadow="hover"
         @click="openProductDetail(product.id)">
-          <h3>{{ product.name }}</h3>
+          <div class="product-cover">
+            <img v-if="product.mainImage" :src="product.mainImage" :alt="product.name">
+            <span v-else>暂无商品封面</span>
+          </div>
+          <div class="product-info">
+            <h3>{{ product.name }}</h3>
           <p>{{ product.subtitle || product.description }}</p>
-          <strong>¥{{ product.minPrice }}</strong>
+            <div class="product-bottom"><strong>¥{{ product.minPrice }}</strong><span>查看详情 →</span></div>
+          </div>
         </el-card>
       </div>
       <!-- 没有商品时显示提示 -->
@@ -210,25 +222,81 @@ onMounted(loadMallHome)
   box-sizing: border-box;
   margin: 0 auto;
   padding: 24px;
-  background: #f5f7fa;
+  background: var(--mall-page);
 }
 .mall-banner {
   margin-top: 20px;
-  padding: 36px 48px;
-  border-radius: 8px;
-  background: linear-gradient(110deg, #fff1f0, #fff8f2);
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 42px 48px;
+  border-radius: 20px;
+  background: linear-gradient(115deg, #fff0ed 0%, #fff9f5 58%, #ffe9dd 100%);
+  box-shadow: var(--mall-shadow);
+}
+
+.banner-content { position: relative; z-index: 2; }
+
+.banner-tag {
+  display: inline-block;
+  margin: 0;
+  padding: 5px 12px;
+  color: var(--mall-primary-dark);
+  font-size: 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .mall-banner h1 {
   margin: 8px 0 12px;
-  font-size: 32px;
+  font-size: 34px;
+  letter-spacing: 1px;
 }
+
+.mall-banner span {
+  display: block;
+  margin-bottom: 22px;
+  color: #737982;
+}
+
+.banner-decoration {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.decoration-one { right: 150px; bottom: -100px; width: 290px; height: 290px; }
+.decoration-two { right: 40px; top: -70px; width: 190px; height: 190px; background: rgba(232, 93, 74, 0.1); }
+
+.banner-badge {
+  position: absolute;
+  z-index: 2;
+  right: 110px;
+  top: 62px;
+  display: grid;
+  width: 116px;
+  height: 116px;
+  place-items: center;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 6px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ef765c, #d8473b);
+  transform: rotate(10deg);
+  box-shadow: 0 12px 24px rgba(206, 74, 56, 0.22);
+}
+
+.banner-badge strong { font-size: 18px; }
 .filter-section {
   margin-top: 20px;
   padding: 16px 22px;
-  background: #ffffff;
-  border: 1px solid #ebeef5;
-  border-radius: 6px;
+  background: #fff;
+  border: 1px solid var(--mall-border);
+  border-radius: 12px;
+  box-shadow: 0 5px 18px rgba(46, 38, 35, 0.04);
 }
 
 .filter-row {
@@ -260,7 +328,46 @@ onMounted(loadMallHome)
 }
 
 .product-card {
-  min-height: 150px;
+  min-height: 242px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--mall-border);
+  border-radius: 14px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 28px rgba(46, 38, 35, 0.12);
+}
+
+.product-cover {
+  display: grid;
+  height: 168px;
+  margin: -20px -20px 16px;
+  place-items: center;
+  overflow: hidden;
+  color: #a7adb7;
+  font-size: 14px;
+  background: linear-gradient(135deg, #fff1ed, #ffe1d4);
+}
+
+.product-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-cover img {
+  transform: scale(1.05);
+}
+
+.product-info h3 {
+  overflow: hidden;
+  margin: 0 0 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .product-card h3 {
   margin: 0 0 10px;
@@ -269,11 +376,64 @@ onMounted(loadMallHome)
 .product-card p {
   min-height: 40px;
   margin: 0 0 12px;
-  color: #909399;
+  color: var(--mall-muted);
+  line-height: 1.5;
 }
 
-.product-card strong {
-  color: #e64545;
+.product-bottom {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.product-bottom strong {
+  color: var(--mall-primary);
   font-size: 20px;
+}
+
+.product-bottom span {
+  color: var(--mall-primary);
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .mall-banner { padding: 32px 24px; }
+  .banner-badge { right: 28px; top: 76px; transform: scale(0.75) rotate(10deg); }
+  .mall-banner h1 { max-width: 250px; font-size: 28px; }
+}
+
+@media (max-width: 600px) {
+  .mall-home-page {
+    padding: 12px;
+  }
+
+  .mall-banner {
+    min-height: 220px;
+    margin-top: 12px;
+    padding: 28px 20px;
+  }
+
+  .banner-badge {
+    right: 8px;
+    top: 112px;
+  }
+
+  .filter-section {
+    padding: 12px 14px;
+  }
+
+  .filter-row {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .filter-label {
+    flex-basis: 100%;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 </style>

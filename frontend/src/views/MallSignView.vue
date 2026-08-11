@@ -220,6 +220,7 @@ onMounted(loadSignData)
 
   .sign-day {
     padding: 8px 2px;
+    font-size: 12px;
   }
 }
 </style>
