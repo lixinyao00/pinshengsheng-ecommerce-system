@@ -25,15 +25,15 @@ public class FileServiceImpl implements FileService {
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
     private final MinioClient minioClient;
-    private final String endpoint;
+    private final String publicEndpoint;
     private final String bucketName;
 
     public FileServiceImpl(
             MinioClient minioClient,
-            @Value("${minio.endpoint}") String endpoint,
+            @Value("${minio.public-endpoint}") String publicEndpoint,
             @Value("${minio.bucket-name}") String bucketName) {
         this.minioClient = minioClient;
-        this.endpoint = endpoint;
+        this.publicEndpoint = publicEndpoint;
         this.bucketName = bucketName;
     }
 
@@ -133,9 +133,9 @@ public class FileServiceImpl implements FileService {
     }
 
     private String buildFileUrl(String objectName) {
-        String baseUrl = endpoint.endsWith("/")
-                ? endpoint.substring(0, endpoint.length() - 1)
-                : endpoint;
+        String baseUrl = publicEndpoint.endsWith("/")
+                ? publicEndpoint.substring(0, publicEndpoint.length() - 1)
+                : publicEndpoint;
 
         return baseUrl + "/" + bucketName + "/" + objectName;
     }

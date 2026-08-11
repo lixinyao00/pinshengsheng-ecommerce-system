@@ -41,3 +41,12 @@
 3. 在 `frontend` 目录执行 `npm run dev`，访问 `http://localhost:5173`。
 
 Gateway 统一入口为 `http://localhost:8380`，前端开发代理也指向该地址。所有本地密码、支付密钥和内网地址只放在本地配置中，不提交到仓库。
+
+## 部署准备
+
+1. 本机开发可复制 `infra/.env.example` 为 `infra/.env`，启动基础服务。
+2. 服务器部署可复制 `infra/.env.production.example` 为 `infra/.env`，设置真实密码与公网图片地址。
+3. 在服务器执行 `bash infra/deploy.sh`，脚本会打包后端并启动完整 Docker 服务。
+4. Nginx 容器会托管前端页面，接口统一转发到 Gateway。
+
+详细变量说明见 [infra/README.md](infra/README.md)。

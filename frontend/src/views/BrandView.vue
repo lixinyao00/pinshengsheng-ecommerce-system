@@ -146,10 +146,10 @@ onMounted(loadBrandList)
 </script>
 
 <template>
-  <section>
-    <div class="page-header">
+  <section class="admin-page">
+    <div class="admin-page-header">
       <h1>品牌管理</h1>
-      <div class="page-actions">
+      <div class="admin-page-actions">
         <el-button :loading="loading" @click="loadBrandList">
           刷新列表
         </el-button>
@@ -159,6 +159,7 @@ onMounted(loadBrandList)
       </div>
     </div>
 
+    <div class="admin-table-wrap">
     <el-table v-loading="loading" :data="brandList" border>
       <el-table-column prop="id" label="ID" width="80" />
 
@@ -203,6 +204,7 @@ onMounted(loadBrandList)
         </template>
       </el-table-column>
     </el-table>
+    </div>
     <!-- 新增和编辑共用一个弹窗 -->
     <el-dialog
         v-model="dialogVisible"

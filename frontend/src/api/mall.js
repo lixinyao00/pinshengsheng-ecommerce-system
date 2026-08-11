@@ -17,3 +17,8 @@ export function getMallProductPage(param) {
 export function getMallProductDetail(id) {
     return request.get(`/api/product/detail/${id}`)
 }
+
+// 查询商城首页已经启用的轮播图
+export function getMallBannerList() {
+    return request.get('/api/product/banner/list')
+}

@@ -1,20 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
-import AdminLayout from '../layouts/AdminLayout.vue'
-import DashboardView from '../views/DashboardView.vue'
-import BrandView from "../views/BrandView.vue";
-import CategoryView from "../views/CategoryView.vue";
-import ProductView from "../views/ProductView.vue";
-import SkuView from '../views/SkuView.vue'
-import OrderView from '../views/OrderView.vue'
-import MallLoginView from '../views/MallLoginView.vue'
-import MallHomeView from "../views/MallHomeView.vue";
-import MallProductListView from '../views/MallProductListView.vue'
-import MallProductDetailView from "../views/MallProductDetailView.vue";
-import MallSignView from '../views/MallSignView.vue'
-import MallCartView from '../views/MallCartView.vue'
-import MallOrderView from '../views/MallOrderView.vue'
-import MallAddressView from '../views/MallAddressView.vue'
+
+const LoginView = () => import('../views/LoginView.vue')
+const AdminLayout = () => import('../layouts/AdminLayout.vue')
+const DashboardView = () => import('../views/DashboardView.vue')
+const BrandView = () => import('../views/BrandView.vue')
+const CategoryView = () => import('../views/CategoryView.vue')
+const ProductView = () => import('../views/ProductView.vue')
+const SkuView = () => import('../views/SkuView.vue')
+const OrderView = () => import('../views/OrderView.vue')
+const HomeBannerView = () => import('../views/HomeBannerView.vue')
+const MallLoginView = () => import('../views/MallLoginView.vue')
+const MallHomeView = () => import('../views/MallHomeView.vue')
+const MallProductListView = () => import('../views/MallProductListView.vue')
+const MallProductDetailView = () => import('../views/MallProductDetailView.vue')
+const MallSignView = () => import('../views/MallSignView.vue')
+const MallCartView = () => import('../views/MallCartView.vue')
+const MallOrderView = () => import('../views/MallOrderView.vue')
+const MallAddressView = () => import('../views/MallAddressView.vue')
 
 // 定义页面地址、布局和页面组件之间的对应关系
 const routes = [
@@ -132,6 +134,11 @@ const routes = [
         path: 'orders',
         name: 'order',
         component: OrderView
+      },
+      {
+        path: 'banners',
+        name: 'banner',
+        component: HomeBannerView
       }
     ]
   }

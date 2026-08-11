@@ -284,7 +284,35 @@ onMounted(loadProducts)
   }
 
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-card {
+    min-height: 0;
+  }
+
+  .product-cover {
+    height: 118px;
+    margin: -20px -20px 12px;
+  }
+
+  .product-card h3 {
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+
+  .product-card p {
+    min-height: 36px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .product-bottom strong {
+    font-size: 17px;
+  }
+
+  .product-bottom span {
+    display: none;
   }
 }
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 230" role="img" aria-label="拼省省首页轮播图占位图">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0ed"/>
+      <stop offset="1" stop-color="#ffd8c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="230" rx="28" fill="url(#bg)"/>
+  <circle cx="1030" cy="20" r="130" fill="#ffffff" opacity=".45"/>
+  <circle cx="1100" cy="230" r="170" fill="#e85d4a" opacity=".12"/>
+  <text x="72" y="82" fill="#c94435" font-size="24" font-family="Microsoft YaHei, sans-serif">拼省省精选</text>
+  <text x="72" y="137" fill="#252a34" font-size="42" font-weight="700" font-family="Microsoft YaHei, sans-serif">首页轮播图占位图</text>
+  <text x="75" y="178" fill="#8b929e" font-size="20" font-family="Microsoft YaHei, sans-serif">请在管理后台上传你的宣传图片</text>
+</svg>

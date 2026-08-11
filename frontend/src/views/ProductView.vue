@@ -376,11 +376,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section>
-    <div class="page-header">
+  <section class="admin-page">
+    <div class="admin-page-header">
       <h1>商品管理</h1>
 
-      <div class="page-actions">
+      <div class="admin-page-actions">
         <el-button :loading="loading" @click="loadProductPage">
           刷新列表
         </el-button>
@@ -390,6 +390,7 @@ onMounted(async () => {
       </div>
     </div>
 
+    <div class="admin-table-wrap">
     <el-table v-loading="loading" :data="productList" border>
       <el-table-column prop="id" label="ID" width="80" />
 
@@ -462,6 +463,7 @@ onMounted(async () => {
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <!-- 后端分页数据和前端页码组件双向绑定 -->
     <el-pagination

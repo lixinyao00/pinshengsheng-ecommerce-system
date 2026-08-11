@@ -212,14 +212,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section>
-    <div class="page-header">
+  <section class="admin-page">
+    <div class="admin-page-header">
       <div>
         <h1>SKU 与库存管理</h1>
         <p>SKU 是商品可实际销售的规格，库存绑定在 SKU 上。</p>
       </div>
 
-      <div class="page-actions">
+      <div class="admin-page-actions">
         <el-select
           v-model="selectedProductId"
           placeholder="请选择商品"
@@ -238,6 +238,7 @@ onMounted(async () => {
       </div>
     </div>
 
+    <div class="admin-table-wrap">
     <el-table v-loading="loading" :data="skuList" border>
       <el-table-column label="ID" width="80">
         <template #default="{ row }">{{ row.sku.id }}</template>
@@ -280,6 +281,7 @@ onMounted(async () => {
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <el-dialog
       v-model="dialogVisible"

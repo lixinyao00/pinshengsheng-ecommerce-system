@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 // 引入商城首页相关接口
 import {
   getMallBrandList,
+  getMallBannerList,
   getMallCategoryTree,
   getMallProductPage
 } from '../api/mall'
@@ -26,6 +27,8 @@ const errorMessage = ref('')
 const productList = ref([])
 const categoryTree = ref([])
 const brandList = ref([])
+const bannerList = ref([])
+const bannerPlaceholder = '/home-banner-placeholder.svg'
 // 当前选中的分类和品牌
 const selectedCategoryId = ref(null)
 const selectedBrandId = ref(null)
@@ -108,6 +111,10 @@ async function loadMallHome() {
     categoryTree.value = categoryResult.data
     brandList.value = brandResult.data
     productList.value = productResult.data.records
+
+    // 轮播图没有数据时保留占位图，不影响商城其他内容加载
+    const bannerResult = await getMallBannerList().catch(() => null)
+    bannerList.value = bannerResult?.code === 200 ? (bannerResult.data || []) : []
   } catch (error) {
     // 保存错误信息，页面可以显示提示
     errorMessage.value = error.message || '商城数据加载失败'
@@ -125,17 +132,22 @@ onMounted(loadMallHome)
 <template>
   <main class="mall-home-page">
     <MallHeader />
-    <!-- 商城欢迎区域 -->
+    <!-- 商城首页轮播图区域，没有上传图片时显示本地占位图 -->
     <section class="mall-banner">
-      <div class="banner-content">
-        <p class="banner-tag">拼省省精选</p>
-        <h1>好商品，拼着买更省</h1>
-        <span>精选品质好物，价格透明，轻松挑选心仪商品。</span>
-        <el-button type="danger" round @click="router.push('/mall/products')">去逛逛</el-button>
+      <el-carousel
+        v-if="bannerList.length > 0"
+        height="230px"
+        :interval="4500"
+        arrow="hover"
+      >
+        <el-carousel-item v-for="banner in bannerList" :key="banner.id">
+          <img class="home-banner-image" :src="banner.imageUrl" alt="拼省省首页轮播图">
+        </el-carousel-item>
+      </el-carousel>
+
+      <div v-else class="banner-placeholder">
+        <img class="home-banner-image" :src="bannerPlaceholder" alt="首页轮播图占位图">
       </div>
-      <div class="banner-decoration decoration-one"></div>
-      <div class="banner-decoration decoration-two"></div>
-      <div class="banner-badge">精选好物<br><strong>低价优选</strong></div>
     </section>
     <!-- 商品筛选区域 -->
     <section class="filter-section">
@@ -227,69 +239,31 @@ onMounted(loadMallHome)
 .mall-banner {
   margin-top: 20px;
   position: relative;
-  min-height: 230px;
+  height: 230px;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 42px 48px;
+  padding: 0;
   border-radius: 20px;
   background: linear-gradient(115deg, #fff0ed 0%, #fff9f5 58%, #ffe9dd 100%);
   box-shadow: var(--mall-shadow);
 }
 
-.banner-content { position: relative; z-index: 2; }
-
-.banner-tag {
-  display: inline-block;
-  margin: 0;
-  padding: 5px 12px;
-  color: var(--mall-primary-dark);
-  font-size: 13px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+.mall-banner :deep(.el-carousel),
+.mall-banner :deep(.el-carousel__container) {
+  height: 230px !important;
 }
 
-.mall-banner h1 {
-  margin: 8px 0 12px;
-  font-size: 34px;
-  letter-spacing: 1px;
-}
-
-.mall-banner span {
+.home-banner-image {
   display: block;
-  margin-bottom: 22px;
-  color: #737982;
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 20px;
 }
 
-.banner-decoration {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.42);
+.banner-placeholder {
+  height: 230px;
 }
-
-.decoration-one { right: 150px; bottom: -100px; width: 290px; height: 290px; }
-.decoration-two { right: 40px; top: -70px; width: 190px; height: 190px; background: rgba(232, 93, 74, 0.1); }
-
-.banner-badge {
-  position: absolute;
-  z-index: 2;
-  right: 110px;
-  top: 62px;
-  display: grid;
-  width: 116px;
-  height: 116px;
-  place-items: center;
-  color: #fff;
-  text-align: center;
-  font-size: 14px;
-  line-height: 1.6;
-  border: 6px solid rgba(255, 255, 255, 0.72);
-  border-radius: 50%;
-  background: linear-gradient(145deg, #ef765c, #d8473b);
-  transform: rotate(10deg);
-  box-shadow: 0 12px 24px rgba(206, 74, 56, 0.22);
-}
-
-.banner-badge strong { font-size: 18px; }
 .filter-section {
   margin-top: 20px;
   padding: 16px 22px;
@@ -397,9 +371,18 @@ onMounted(loadMallHome)
 }
 
 @media (max-width: 700px) {
-  .mall-banner { padding: 32px 24px; }
-  .banner-badge { right: 28px; top: 76px; transform: scale(0.75) rotate(10deg); }
-  .mall-banner h1 { max-width: 250px; font-size: 28px; }
+  .mall-banner :deep(.el-carousel),
+  .mall-banner :deep(.el-carousel__container),
+  .mall-banner,
+  .banner-placeholder {
+    height: 168px !important;
+  }
+
+  .home-banner-image {
+    height: 168px;
+    border-radius: 14px;
+  }
+
 }
 
 @media (max-width: 600px) {
@@ -408,14 +391,7 @@ onMounted(loadMallHome)
   }
 
   .mall-banner {
-    min-height: 220px;
     margin-top: 12px;
-    padding: 28px 20px;
-  }
-
-  .banner-badge {
-    right: 8px;
-    top: 112px;
   }
 
   .filter-section {
@@ -432,8 +408,36 @@ onMounted(loadMallHome)
   }
 
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+  }
+
+  .product-card {
+    min-height: 0;
+  }
+
+  .product-cover {
+    height: 118px;
+    margin: -20px -20px 12px;
+  }
+
+  .product-card h3 {
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+
+  .product-card p {
+    min-height: 36px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .product-bottom strong {
+    font-size: 17px;
+  }
+
+  .product-bottom span {
+    display: none;
   }
 }
 </style>

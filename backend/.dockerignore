@@ -1,0 +1,17 @@
+**
+!Dockerfile
+!auth-service/
+!auth-service/target/
+!auth-service/target/*.jar
+!cart-service/
+!cart-service/target/
+!cart-service/target/*.jar
+!gateway-service/
+!gateway-service/target/
+!gateway-service/target/*.jar
+!order-service/
+!order-service/target/
+!order-service/target/*.jar
+!product-service/
+!product-service/target/
+!product-service/target/*.jar

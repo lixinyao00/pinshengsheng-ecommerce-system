@@ -21,20 +21,19 @@ spring:
 
   # 商品服务连接本机 Docker 中的 MySQL
   datasource:
-    url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${PSS_MYSQL_HOST:127.0.0.1}:${PSS_MYSQL_PORT:13380}/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: root
     password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: 127.0.0.1
-      port: 16379
+      host: ${PSS_REDIS_HOST:127.0.0.1}
+      port: ${PSS_REDIS_PORT:16379}
       timeout: 3s
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:18848
-        ip: 127.0.0.1
+        server-addr: ${PSS_NACOS_HOST:127.0.0.1}:${PSS_NACOS_PORT:18848}
 
 management:
   endpoints:
@@ -53,7 +52,8 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 # 商品图片存储配置；密钥只从本机环境变量读取
 minio:
-  endpoint: http://127.0.0.1:9000
+  endpoint: ${PSS_MINIO_ENDPOINT:http://127.0.0.1:9000}
+  public-endpoint: ${PSS_MINIO_PUBLIC_ENDPOINT:http://127.0.0.1:9000}
   access-key: ${MINIO_ROOT_USER}
   secret-key: ${MINIO_ROOT_PASSWORD}
   bucket-name: pinshengsheng-product

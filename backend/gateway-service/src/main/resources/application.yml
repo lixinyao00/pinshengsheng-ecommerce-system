@@ -7,8 +7,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:18848
-        ip: 127.0.0.1
+        server-addr: ${PSS_NACOS_HOST:127.0.0.1}:${PSS_NACOS_PORT:18848}
     gateway:
       routes:
         - id: product-service

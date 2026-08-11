@@ -439,6 +439,7 @@ onMounted(loadProductDetail)
 
   .product-image {
     min-height: 240px;
+    aspect-ratio: 4 / 3;
   }
 
   .product-info h1 {
@@ -474,7 +475,8 @@ onMounted(loadProductDetail)
   .image-list img {
     width: calc(50% - 8px);
     height: auto;
-    aspect-ratio: 1;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 }
 </style>

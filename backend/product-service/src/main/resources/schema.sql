@@ -7,3 +7,13 @@ CREATE TABLE IF NOT EXISTS pss_product_image (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_product_image_product_id (product_id)
 );
+
+CREATE TABLE IF NOT EXISTS pss_home_banner (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    image_url VARCHAR(500) NOT NULL,
+    sort INT NOT NULL DEFAULT 0,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_home_banner_status_sort (status, sort)
+);

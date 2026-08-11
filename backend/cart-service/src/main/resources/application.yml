@@ -7,17 +7,16 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:18848
-        ip: 127.0.0.1
+        server-addr: ${PSS_NACOS_HOST:127.0.0.1}:${PSS_NACOS_PORT:18848}
 
   data:
     redis:
-      host: 127.0.0.1
-      port: 16379
+      host: ${PSS_REDIS_HOST:127.0.0.1}
+      port: ${PSS_REDIS_PORT:16379}
       timeout: 3s
   rabbitmq:
-    host: 127.0.0.1
-    port: 5672
+    host: ${PSS_RABBITMQ_HOST:127.0.0.1}
+    port: ${PSS_RABBITMQ_PORT:5672}
     username: ${PSS_RABBITMQ_USERNAME:pinshengsheng}
     password: ${PSS_RABBITMQ_PASSWORD:pinshengsheng_rabbit_change_me}
 

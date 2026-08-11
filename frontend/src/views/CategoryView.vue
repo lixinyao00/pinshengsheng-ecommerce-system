@@ -181,12 +181,12 @@ onMounted(loadCategoryList)
 </script>
 
 <template>
-  <section>
-    <div class="page-header">
+  <section class="admin-page">
+    <div class="admin-page-header">
       <h1>分类管理</h1>
 
       <!-- 重新查询数据库中的分类数据 -->
-      <div class="page-actions">
+      <div class="admin-page-actions">
         <!-- 重新从数据库查询分类 -->
         <el-button :loading="loading" @click="loadCategoryList">
           刷新列表
@@ -199,6 +199,7 @@ onMounted(loadCategoryList)
       </div>
     </div>
 
+    <div class="admin-table-wrap">
     <el-table v-loading="loading" :data="categoryList" border>
       <el-table-column prop="id" label="ID" width="80" />
 
@@ -250,6 +251,7 @@ onMounted(loadCategoryList)
         </template>
       </el-table-column>
     </el-table>
+    </div>
       <!-- 新增和编辑分类共用一个弹窗 -->
       <el-dialog
           v-model="dialogVisible"

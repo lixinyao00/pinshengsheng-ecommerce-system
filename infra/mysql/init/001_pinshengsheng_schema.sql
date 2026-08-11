@@ -1,0 +1,149 @@
+-- 拼省省电商系统基础表结构
+-- 所有语句都使用 IF NOT EXISTS，避免重复部署时覆盖已有数据
+
+CREATE TABLE IF NOT EXISTS pss_user (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(64) NOT NULL,
+    nickname VARCHAR(50) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pss_brand (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    logo VARCHAR(500) NULL,
+    sort INT NOT NULL DEFAULT 0,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pss_category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    parent_id BIGINT NOT NULL DEFAULT 0,
+    name VARCHAR(100) NOT NULL,
+    level_num INT NOT NULL DEFAULT 1,
+    sort INT NOT NULL DEFAULT 0,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pss_product (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    brand_id BIGINT NOT NULL,
+    category_id BIGINT NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    subtitle VARCHAR(500) NULL,
+    main_image VARCHAR(500) NULL,
+    description TEXT NULL,
+    min_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_product_brand_id (brand_id),
+    KEY idx_product_category_id (category_id),
+    KEY idx_product_status (status)
+);
+
+CREATE TABLE IF NOT EXISTS pss_sku (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    product_id BIGINT NOT NULL,
+    sku_code VARCHAR(64) NOT NULL UNIQUE,
+    name VARCHAR(200) NOT NULL,
+    attributes_json JSON NULL,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_sku_product_id (product_id)
+);
+
+CREATE TABLE IF NOT EXISTS pss_sku_stock (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    sku_id BIGINT NOT NULL UNIQUE,
+    available_stock INT NOT NULL DEFAULT 0,
+    locked_stock INT NOT NULL DEFAULT 0,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pss_product_image (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    product_id BIGINT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    sort INT NOT NULL DEFAULT 0,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_product_image_product_id (product_id)
+);
+
+CREATE TABLE IF NOT EXISTS pss_home_banner (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    image_url VARCHAR(500) NOT NULL,
+    sort INT NOT NULL DEFAULT 0,
+    status TINYINT NOT NULL DEFAULT 1,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_home_banner_status_sort (status, sort)
+);
+
+CREATE TABLE IF NOT EXISTS pss_user_address (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    receiver_name VARCHAR(50) NOT NULL,
+    receiver_phone VARCHAR(20) NOT NULL,
+    province VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    district VARCHAR(50) NOT NULL,
+    detail_address VARCHAR(255) NOT NULL,
+    is_default TINYINT NOT NULL DEFAULT 0,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_address_user_id (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS pss_order (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_no VARCHAR(32) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    pay_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status TINYINT NOT NULL DEFAULT 0,
+    stock_locked TINYINT NOT NULL DEFAULT 0,
+    receiver_name VARCHAR(50) NOT NULL,
+    receiver_phone VARCHAR(20) NOT NULL,
+    province VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    district VARCHAR(50) NOT NULL,
+    detail_address VARCHAR(255) NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    pay_time DATETIME NULL,
+    delivery_time DATETIME NULL,
+    finish_time DATETIME NULL,
+    cancel_time DATETIME NULL,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_order_user_id (user_id),
+    KEY idx_order_status (status)
+);
+
+CREATE TABLE IF NOT EXISTS pss_order_item (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    sku_id BIGINT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    sku_code VARCHAR(64) NOT NULL,
+    sku_name VARCHAR(200) NOT NULL,
+    main_image VARCHAR(500) NULL,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_order_item_order_id (order_id),
+    KEY idx_order_item_sku_id (sku_id)
+);

@@ -91,10 +91,10 @@ onMounted(loadOrderList)
 </script>
 
 <template>
-  <section>
-    <div class="page-header">
+  <section class="admin-page">
+    <div class="admin-page-header">
       <h1>订单管理</h1>
-      <div class="page-actions">
+      <div class="admin-page-actions">
         <el-select v-model="selectedStatus" placeholder="订单状态" style="width: 140px" @change="loadOrderList">
           <el-option
             v-for="item in statusOptions"
@@ -107,6 +107,7 @@ onMounted(loadOrderList)
       </div>
     </div>
 
+    <div class="admin-table-wrap">
     <el-table v-loading="loading" :data="orderList" border>
       <el-table-column prop="id" label="订单ID" width="90" />
       <el-table-column prop="orderNo" label="订单号" min-width="190" />
@@ -132,6 +133,7 @@ onMounted(loadOrderList)
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <el-dialog v-model="detailVisible" title="订单详情" width="760px">
       <el-skeleton v-if="detailLoading" :rows="5" animated />

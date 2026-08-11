@@ -20,6 +20,7 @@ bootstrap-local.yml
 .env
 .env.*
 !.env.example
+!infra/.env.production.example
 *.pem
 *.key
 

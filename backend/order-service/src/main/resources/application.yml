@@ -12,15 +12,15 @@ spring:
   application:
     name: order-service
   product-service:
-    url: http://127.0.0.1:8381
+    url: ${PSS_PRODUCT_SERVICE_URL:http://127.0.0.1:8381}
   datasource:
-    url: jdbc:mysql://127.0.0.1:13380/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${PSS_MYSQL_HOST:127.0.0.1}:${PSS_MYSQL_PORT:13380}/pinshengsheng?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: ${PSS_MYSQL_PASSWORD:pinshengsheng_root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   rabbitmq:
-    host: 127.0.0.1
-    port: 5672
+    host: ${PSS_RABBITMQ_HOST:127.0.0.1}
+    port: ${PSS_RABBITMQ_PORT:5672}
     username: ${PSS_RABBITMQ_USERNAME:pinshengsheng}
     password: ${PSS_RABBITMQ_PASSWORD:pinshengsheng_rabbit_change_me}
   sql:
@@ -29,8 +29,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:18848
-        ip: 127.0.0.1
+        server-addr: ${PSS_NACOS_HOST:127.0.0.1}:${PSS_NACOS_PORT:18848}
 
 management:
   endpoints:

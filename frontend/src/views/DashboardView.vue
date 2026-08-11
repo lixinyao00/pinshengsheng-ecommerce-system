@@ -32,7 +32,7 @@ onMounted(loadDashboard)
 </script>
 
 <template>
-  <section>
+  <section class="admin-page">
     <h1>后台首页</h1>
     <p>欢迎你，{{ userStore.username }}！</p>
 
