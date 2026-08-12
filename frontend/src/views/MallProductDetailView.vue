@@ -203,7 +203,6 @@ onMounted(loadProductDetail)
         >
           <div>
             <strong>{{ item.sku.name }}</strong>
-            <p>编码：{{ item.sku.skuCode }}</p>
           </div>
 
           <strong class="sku-price">

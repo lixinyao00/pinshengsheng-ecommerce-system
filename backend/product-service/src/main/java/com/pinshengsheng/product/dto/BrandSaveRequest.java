@@ -4,7 +4,6 @@ package com.pinshengsheng.product.dto;
 public class BrandSaveRequest {
 
     private String name;
-    private String logo;
     private Integer sort;
     private Integer status;
 
@@ -14,14 +13,6 @@ public class BrandSaveRequest {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getLogo() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo = logo;
     }
 
     public Integer getSort() {

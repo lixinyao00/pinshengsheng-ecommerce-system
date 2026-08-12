@@ -19,7 +19,6 @@ const saving = ref(false)
 const brandForm = reactive({
   id: null,
   name: '',
-  logo: '',
   sort: 0,
   status: 1
 })
@@ -53,7 +52,6 @@ function resetBrandForm() {
   Object.assign(brandForm, {
     id: null,
     name: '',
-    logo: '',
     sort: 0,
     status: 1
   })
@@ -70,7 +68,6 @@ function openEditDialog(row) {
   Object.assign(brandForm, {
     id: row.id,
     name: row.name,
-    logo: row.logo || '',
     sort: row.sort,
     status: row.status
   })
@@ -91,7 +88,6 @@ async function submitBrand() {
   try {
     const data = {
       name: brandForm.name,
-      logo: brandForm.logo,
       sort: brandForm.sort,
       status: brandForm.status
     }
@@ -165,18 +161,6 @@ onMounted(loadBrandList)
 
       <el-table-column prop="name" label="品牌名称" min-width="160" />
 
-      <el-table-column label="Logo" width="100">
-        <template #default="{ row }">
-          <el-image
-              v-if="row.logo"
-              :src="row.logo"
-              fit="contain"
-              class="brand-logo"
-          />
-          <span v-else>暂无</span>
-        </template>
-      </el-table-column>
-
       <el-table-column prop="sort" label="排序" width="100" />
 
       <el-table-column label="状态" width="100">
@@ -222,11 +206,6 @@ onMounted(loadBrandList)
           <el-input v-model="brandForm.name" placeholder="例如：拼省数码" />
         </el-form-item>
 
-        <!-- 当前先允许填写图片地址；MinIO 上传后会替换成上传组件 -->
-        <el-form-item label="Logo 地址">
-          <el-input v-model="brandForm.logo" placeholder="可暂时留空" />
-        </el-form-item>
-
         <el-form-item label="排序">
           <el-input-number v-model="brandForm.sort" :min="0" />
         </el-form-item>
@@ -263,10 +242,6 @@ onMounted(loadBrandList)
   margin: 0;
 }
 
-.brand-logo {
-  width: 50px;
-  height: 50px;
-}
 .page-actions {
   display: flex;
   gap: 12px;

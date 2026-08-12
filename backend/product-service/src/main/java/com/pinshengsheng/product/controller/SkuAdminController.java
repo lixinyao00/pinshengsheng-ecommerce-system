@@ -30,11 +30,11 @@ public class SkuAdminController {
     public ApiResponse<SkuStockVO> createSku(
             @RequestBody SkuSaveRequest request) {
         if (!validRequest(request)) {
-            return ApiResponse.fail(400, "商品、SKU 编码、名称和价格不能为空");
+            return ApiResponse.fail(400, "商品、规格名称和价格不能为空");
         }
         SkuStockVO sku = skuService.createSku(request);
         return sku == null
-                ? ApiResponse.fail(400, "商品不存在或 SKU 编码重复")
+                ? ApiResponse.fail(400, "商品不存在")
                 : ApiResponse.success(sku);
     }
 
@@ -43,11 +43,11 @@ public class SkuAdminController {
             @PathVariable Long id,
             @RequestBody SkuSaveRequest request) {
         if (!validRequest(request)) {
-            return ApiResponse.fail(400, "商品、SKU 编码、名称和价格不能为空");
+            return ApiResponse.fail(400, "商品、规格名称和价格不能为空");
         }
         SkuStockVO sku = skuService.updateSku(id, request);
         return sku == null
-                ? ApiResponse.fail(400, "SKU 不存在、商品不存在或编码重复")
+                ? ApiResponse.fail(400, "SKU 不存在或商品不存在")
                 : ApiResponse.success(sku);
     }
 
@@ -78,10 +78,8 @@ public class SkuAdminController {
     }
 
     private boolean validRequest(SkuSaveRequest request) {
-        // 在 Controller 先挡住明显无效的数据，Service 再处理关联关系和重复编码
+        // 在 Controller 先挡住明显无效的数据，SKU 编码由 Service 自动生成
         return request.getProductId() != null
-                && request.getSkuCode() != null
-                && !request.getSkuCode().isBlank()
                 && request.getSkuName() != null
                 && !request.getSkuName().isBlank()
                 && request.getPrice() != null

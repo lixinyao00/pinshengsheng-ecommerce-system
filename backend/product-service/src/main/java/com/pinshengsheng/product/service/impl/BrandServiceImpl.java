@@ -92,6 +92,5 @@ public class BrandServiceImpl implements BrandService {
     private void copyRequest(BrandSaveRequest request, Brand brand) {
         // 新增和编辑共用字段复制，避免两处赋值逻辑不一致
         brand.setName(request.getName());
-        brand.setLogo(request.getLogo());
     }
 }

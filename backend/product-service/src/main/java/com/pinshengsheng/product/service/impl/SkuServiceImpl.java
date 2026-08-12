@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 // SKU 是商品的可售规格，库存单独放在 pss_sku_stock 表中维护
 @Service
@@ -51,8 +52,7 @@ public class SkuServiceImpl implements SkuService {
     @Transactional
     public SkuStockVO createSku(SkuSaveRequest request) {
         Product product = productMapper.selectById(request.getProductId());
-        // SKU 编码在系统内唯一，重复时不能继续写入
-        if (product == null || skuCodeExists(request.getSkuCode(), null)) {
+        if (product == null) {
             return null;
         }
 
@@ -77,7 +77,7 @@ public class SkuServiceImpl implements SkuService {
     public SkuStockVO updateSku(Long id, SkuSaveRequest request) {
         Sku sku = skuMapper.selectById(id);
         Product product = productMapper.selectById(request.getProductId());
-        if (sku == null || product == null || skuCodeExists(request.getSkuCode(), id)) {
+        if (sku == null || product == null) {
             return null;
         }
 
@@ -127,22 +127,19 @@ public class SkuServiceImpl implements SkuService {
         return skuStockMapper.updateById(stock) > 0;
     }
 
-    private boolean skuCodeExists(String skuCode, Long excludeId) {
-        LambdaQueryWrapper<Sku> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Sku::getSkuCode, skuCode);
-        // 编辑时排除自己，避免原编码被误判为重复
-        if (excludeId != null) {
-            queryWrapper.ne(Sku::getId, excludeId);
-        }
-        return skuMapper.selectCount(queryWrapper) > 0;
-    }
-
     private void copyRequest(SkuSaveRequest request, Sku sku) {
         sku.setProductId(request.getProductId());
-        sku.setSkuCode(request.getSkuCode());
+        if (sku.getSkuCode() == null) {
+            sku.setSkuCode(createSkuCode(request.getProductId()));
+        }
         sku.setName(request.getSkuName());
-        sku.setAttributesJson(request.getAttributesJson());
         sku.setPrice(request.getPrice());
+    }
+
+    // 简化商城不要求管理员维护编码，系统仍保留唯一编码供订单快照等内部逻辑使用
+    private String createSkuCode(Long productId) {
+        String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        return "PSS-" + productId + "-" + suffix;
     }
 
     private SkuStock getStock(Long skuId) {

@@ -26,9 +26,7 @@ const saving = ref(false)
 const skuForm = reactive({
   id: null,
   productId: null,
-  skuCode: '',
   skuName: '',
-  attributesJson: '{}',
   price: 0,
   status: 1,
   availableStock: 0
@@ -36,7 +34,6 @@ const skuForm = reactive({
 
 const rules = {
   productId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-  skuCode: [{ required: true, message: '请输入 SKU 编码', trigger: 'blur' }],
   skuName: [{ required: true, message: '请输入 SKU 名称', trigger: 'blur' }],
   price: [{ required: true, message: '请输入售价', trigger: 'blur' }]
 }
@@ -89,9 +86,7 @@ function resetSkuForm() {
   Object.assign(skuForm, {
     id: null,
     productId: selectedProductId.value,
-    skuCode: '',
     skuName: '',
-    attributesJson: '{}',
     price: 0,
     status: 1,
     availableStock: 0
@@ -111,9 +106,7 @@ function openEditDialog(row) {
   Object.assign(skuForm, {
     id: row.sku.id,
     productId: row.sku.productId,
-    skuCode: row.sku.skuCode,
     skuName: row.sku.name,
-    attributesJson: row.sku.attributesJson || '{}',
     price: row.sku.price,
     status: row.sku.status,
     availableStock: row.availableStock
@@ -131,9 +124,7 @@ async function submitSku() {
   try {
     const data = {
       productId: skuForm.productId,
-      skuCode: skuForm.skuCode,
       skuName: skuForm.skuName,
-      attributesJson: skuForm.attributesJson,
       price: skuForm.price,
       status: skuForm.status,
       availableStock: skuForm.availableStock
@@ -244,10 +235,6 @@ onMounted(async () => {
         <template #default="{ row }">{{ row.sku.id }}</template>
       </el-table-column>
 
-      <el-table-column label="SKU 编码" min-width="150">
-        <template #default="{ row }">{{ row.sku.skuCode }}</template>
-      </el-table-column>
-
       <el-table-column label="规格名称" min-width="200">
         <template #default="{ row }">{{ row.sku.name }}</template>
       </el-table-column>
@@ -300,16 +287,8 @@ onMounted(async () => {
           </el-select>
         </el-form-item>
 
-        <el-form-item label="SKU 编码" prop="skuCode">
-          <el-input v-model="skuForm.skuCode" placeholder="例如：PSS-EAR-BLACK" />
-        </el-form-item>
-
         <el-form-item label="规格名称" prop="skuName">
           <el-input v-model="skuForm.skuName" placeholder="例如：黑色标准版" />
-        </el-form-item>
-
-        <el-form-item label="规格属性">
-          <el-input v-model="skuForm.attributesJson" placeholder='例如：{"color":"黑色"}' />
         </el-form-item>
 
         <el-row :gutter="16">

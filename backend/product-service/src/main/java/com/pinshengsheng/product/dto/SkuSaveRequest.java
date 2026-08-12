@@ -6,9 +6,7 @@ import java.math.BigDecimal;
 public class SkuSaveRequest {
 
     private Long productId;
-    private String skuCode;
     private String skuName;
-    private String attributesJson;
     private BigDecimal price;
     private Integer status;
     private Integer availableStock;
@@ -21,28 +19,12 @@ public class SkuSaveRequest {
         this.productId = productId;
     }
 
-    public String getSkuCode() {
-        return skuCode;
-    }
-
-    public void setSkuCode(String skuCode) {
-        this.skuCode = skuCode;
-    }
-
     public String getSkuName() {
         return skuName;
     }
 
     public void setSkuName(String skuName) {
         this.skuName = skuName;
-    }
-
-    public String getAttributesJson() {
-        return attributesJson;
-    }
-
-    public void setAttributesJson(String attributesJson) {
-        this.attributesJson = attributesJson;
     }
 
     public BigDecimal getPrice() {
